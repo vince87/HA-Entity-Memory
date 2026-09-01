@@ -3,6 +3,8 @@
 Entity Memory is a custom Home Assistant integration that makes recent entity
 history easy to query from automations.
 
+Development status and next steps are tracked in the [project roadmap](ROADMAP.md).
+
 The intended architecture uses Home Assistant Recorder as the only persistent
 source, restores a bounded in-memory cache at startup, and then follows state
 changes in real time.

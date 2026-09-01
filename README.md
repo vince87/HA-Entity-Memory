@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/entity-memory-icon.png" alt="Entity Memory icon" width="220">
+</p>
+
 # Entity Memory
 
 Entity Memory is a custom Home Assistant integration that makes recent entity
@@ -69,3 +73,4 @@ such events are certainly manual.
 ## License
 
 MIT
+

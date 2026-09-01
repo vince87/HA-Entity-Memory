@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/entity-memory-icon.png" alt="Entity Memory icon" width="220">
+  <img src="assets/entity-memory-icon.svg" alt="Entity Memory icon" width="220" height="220">
 </p>
 
 # Entity Memory

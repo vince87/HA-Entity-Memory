@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Entity Memory</title>
+  <desc id="desc">A smart home containing a history clock and three connected event nodes.</desc>
+  <defs>
+    <linearGradient id="navy" x1="92" y1="70" x2="420" y2="438" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123F7A"/>
+      <stop offset="1" stop-color="#06295E"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="156" y1="184" x2="360" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18B9E6"/>
+      <stop offset="1" stop-color="#0099C7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Transparent canvas; all artwork stays inside a 48 px safe area. -->
+  <path d="M70 229 256 76l186 153" fill="none" stroke="url(#navy)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M103 215v211h91M409 215v211h-91" fill="none" stroke="url(#navy)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M376 174v-62h48v102" fill="url(#navy)"/>
+
+  <path d="M174 242a91 91 0 1 1 6 75" fill="none" stroke="url(#cyan)" stroke-width="28" stroke-linecap="round"/>
+  <path d="m164 216 7 54 51-22" fill="url(#cyan)" stroke="url(#cyan)" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M256 213v60l42 31" fill="none" stroke="url(#navy)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="m164 377 92 56 92-56" fill="none" stroke="url(#cyan)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#FFB21A" stroke="url(#cyan)" stroke-width="15">
+    <circle cx="154" cy="371" r="35"/>
+    <circle cx="256" cy="433" r="35"/>
+    <circle cx="358" cy="371" r="35"/>
+  </g>
+</svg>
+

@@ -26,8 +26,17 @@ SUPPORTED_DOMAINS: Final = {
 IGNORED_STATES: Final = {"unknown", "unavailable"}
 SIGNIFICANT_ATTRIBUTES: Final = {
     "climate": frozenset(
-        {"hvac_mode", "temperature", "target_temp_high", "target_temp_low", "preset_mode"}
+        {
+            "fan_mode",
+            "hvac_mode",
+            "preset_mode",
+            "swing_mode",
+            "target_temp_high",
+            "target_temp_low",
+            "temperature",
+        }
     ),
     "cover": frozenset({"current_position", "current_tilt_position"}),
     "light": frozenset({"brightness", "color_temp_kelvin", "rgb_color", "effect"}),
 }
+

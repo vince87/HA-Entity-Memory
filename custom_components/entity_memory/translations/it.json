@@ -1,0 +1,33 @@
+{
+  "title": "Entity Memory",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configura Entity Memory",
+        "description": "Seleziona fino a 50 entità i cui cambiamenti recenti saranno disponibili alle automazioni.",
+        "data": {
+          "entities": "Entità",
+          "window_hours": "Finestra di memoria (ore)",
+          "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
+          "attribute_changes": "Registra i cambiamenti significativi degli attributi"
+        }
+      }
+    },
+    "error": {"too_many_entities": "Seleziona non più di 50 entità."},
+    "abort": {"single_instance_allowed": "Entity Memory è già configurata."}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni di Entity Memory",
+        "data": {
+          "entities": "Entità",
+          "window_hours": "Finestra di memoria (ore)",
+          "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
+          "attribute_changes": "Registra i cambiamenti significativi degli attributi"
+        }
+      }
+    },
+    "error": {"too_many_entities": "Seleziona non più di 50 entità."}
+  }
+}

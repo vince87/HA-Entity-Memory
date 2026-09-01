@@ -1,0 +1,52 @@
+get_events:
+  name: Get events
+  description: Return matching recent events, newest first.
+  fields: &query_fields
+    entity_id:
+      name: Entities
+      required: true
+      selector:
+        entity:
+          multiple: true
+    since:
+      name: Look-back period
+      default: "12:00:00"
+      selector:
+        duration:
+    to_state:
+      name: New state
+      selector:
+        text:
+    origins:
+      name: Origins
+      selector:
+        select:
+          multiple: true
+          options:
+            - user
+            - automation
+            - device_or_external
+            - unknown
+    limit:
+      name: Maximum results
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box
+
+last_event:
+  name: Get last event
+  description: Return the newest matching event.
+  fields: *query_fields
+
+was_changed:
+  name: Check recent change
+  description: Check whether at least one matching event exists.
+  fields: *query_fields
+
+count_events:
+  name: Count events
+  description: Count matching events in the requested period.
+  fields: *query_fields

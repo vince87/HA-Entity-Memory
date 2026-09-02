@@ -89,6 +89,8 @@ class IntentTracker:
         for entity_id in _entity_ids(service_data.get(ATTR_ENTITY_ID)):
             if entity_id not in configured_entities:
                 continue
+            if entity_id.partition(".")[0] != domain:
+                continue
             self._pending[entity_id].append(
                 ServiceIntent(
                     entity_id=entity_id,

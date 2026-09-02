@@ -1,6 +1,15 @@
-# 0.1.0-alpha.2
+# 0.1.0-alpha.3
 
-First installable release for controlled testing on Home Assistant 2026.x.
+Corrective prerelease for controlled testing on Home Assistant 2026.x.
+
+## Fixed
+
+- Entity Memory query actions no longer create false command intents for the
+  entities they query.
+- Command correlation now requires the service domain to match the target
+  entity domain.
+- When unavailable/unknown states are ignored, both the outage and the recovery
+  transition are excluded from live capture and Recorder restoration.
 
 ## Included
 

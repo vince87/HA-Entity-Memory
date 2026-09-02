@@ -37,7 +37,9 @@ def test_restores_significant_attribute_change_only() -> None:
         ]
     }
 
-    events = _restored_events(states, START, include_attributes=True)
+    events = _restored_events(
+        states, START, include_attributes=True, ignore_unavailable=True
+    )
 
     assert len(events) == 1
     assert events[0].changes["temperature"] == {"old": 24, "new": 23}
@@ -53,8 +55,26 @@ def test_restored_binary_sensor_remains_unknown() -> None:
         ]
     }
 
-    events = _restored_events(states, START, include_attributes=True)
+    events = _restored_events(
+        states, START, include_attributes=True, ignore_unavailable=True
+    )
 
     assert len(events) == 1
     assert events[0].origin is EventOrigin.UNKNOWN
     assert events[0].confidence == "low"
+
+
+def test_ignores_unavailable_outage_and_recovery() -> None:
+    states = {
+        "climate.living_room": [
+            _state(24, -1),
+            _state(24, 1, state="unavailable"),
+            _state(24, 2),
+        ]
+    }
+
+    events = _restored_events(
+        states, START, include_attributes=True, ignore_unavailable=True
+    )
+
+    assert events == []

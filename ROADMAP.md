@@ -43,6 +43,13 @@ advance beyond alpha.
 - 🟨 Home Assistant setup, reload, unload and service tests passing.
 - 🟨 Climate manual-override example validated on the reference container.
 
+### `0.1.0-alpha.3` — attribution and availability hotfix
+
+- ✅ Query actions excluded from command correlation.
+- ✅ Service/entity domain matching enforced.
+- ✅ Unavailable and unknown outage/recovery pairs ignored consistently.
+- 🟨 Regression behavior validated on the reference container.
+
 ### `0.1.0-beta.1` — broader testing
 
 - Diagnostics and complete documentation.

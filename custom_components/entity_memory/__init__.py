@@ -98,7 +98,10 @@ async def async_setup_entry(
         new_state = event.data.get("new_state")
         if new_state is None:
             return
-        if ignore_unavailable and new_state.state in IGNORED_STATES:
+        if ignore_unavailable and (
+            new_state.state in IGNORED_STATES
+            or (old_state is not None and old_state.state in IGNORED_STATES)
+        ):
             return
         if not _is_significant(old_state, new_state, include_attributes):
             return
@@ -136,6 +139,7 @@ async def async_setup_entry(
         now - window,
         now,
         include_attributes=include_attributes,
+        ignore_unavailable=ignore_unavailable,
     )
     store.extend(restored, dt_util.utcnow())
 

@@ -78,3 +78,22 @@ def test_expires_old_intents() -> None:
     )
 
     assert tracker.match(_change(24, NOW + timedelta(seconds=181))) is None
+
+
+def test_ignores_query_action_targeting_a_configured_entity() -> None:
+    tracker = IntentTracker()
+    event = Event(
+        "call_service",
+        {
+            "domain": "entity_memory",
+            "service": "get_events",
+            "service_data": {"entity_id": [ENTITY_ID]},
+        },
+        time_fired_timestamp=NOW.timestamp(),
+        context=Context(user_id="user"),
+    )
+
+    tracker.observe_call(event, {ENTITY_ID})
+
+    assert tracker.pending_count == 0
+    assert tracker.match(_change(24, NOW + timedelta(seconds=10))) is None

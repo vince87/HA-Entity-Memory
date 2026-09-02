@@ -43,7 +43,7 @@ For a manual installation, copy `custom_components/entity_memory` to
 
 When upgrading from an earlier development snapshot, update the repository in
 HACS (or replace the integration directory), restart Home Assistant, and
-confirm that the manifest reports `0.1.0-alpha.2`. Existing config entries are
+confirm that the manifest reports `0.1.0-alpha.3`. Existing config entries are
 kept because the config-flow version remains unchanged.
 
 The integration icon is bundled locally, so it is also shown in Home

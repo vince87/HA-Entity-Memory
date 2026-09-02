@@ -1,4 +1,4 @@
-# 0.1.0-alpha.4
+# 0.1.0-alpha.5
 
 Corrective prerelease for controlled testing on Home Assistant 2026.x.
 
@@ -12,6 +12,9 @@ Corrective prerelease for controlled testing on Home Assistant 2026.x.
   transition are excluded from live capture and Recorder restoration.
 - Entity Memory is classified as an integration service instead of a helper,
   so it is managed from the normal Integrations area.
+- Climate calls carrying `hvac_mode` now compare it only with the entity state,
+  allowing automation-driven temperature changes to correlate correctly.
+- The README header image uses an absolute URL so it renders inside HACS.
 
 ## Included
 

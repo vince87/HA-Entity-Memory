@@ -97,3 +97,28 @@ def test_ignores_query_action_targeting_a_configured_entity() -> None:
 
     assert tracker.pending_count == 0
     assert tracker.match(_change(24, NOW + timedelta(seconds=10))) is None
+
+
+def test_matches_climate_hvac_mode_against_entity_state() -> None:
+    tracker = IntentTracker()
+    event = Event(
+        "call_service",
+        {
+            "domain": "climate",
+            "service": "set_temperature",
+            "service_data": {
+                "entity_id": [ENTITY_ID],
+                "hvac_mode": "cool",
+                "temperature": 24,
+            },
+        },
+        time_fired_timestamp=NOW.timestamp(),
+        context=Context(parent_id="automation"),
+    )
+
+    tracker.observe_call(event, {ENTITY_ID})
+    intent = tracker.match(_change(24, NOW + timedelta(seconds=2)))
+
+    assert intent is not None
+    assert intent.origin is EventOrigin.AUTOMATION
+    assert intent.service == "climate.set_temperature"

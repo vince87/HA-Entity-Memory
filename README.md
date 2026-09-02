@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/entity-memory-icon.svg" alt="Entity Memory icon" width="220" height="220">
+  <img src="https://raw.githubusercontent.com/vince87/HA-Entity-Memory/main/custom_components/entity_memory/brand/icon%402x.png" alt="Entity Memory icon" width="220" height="220">
 </p>
 
 # Entity Memory
@@ -43,7 +43,7 @@ For a manual installation, copy `custom_components/entity_memory` to
 
 When upgrading from an earlier development snapshot, update the repository in
 HACS (or replace the integration directory), restart Home Assistant, and
-confirm that the manifest reports `0.1.0-alpha.4`. Existing config entries are
+confirm that the manifest reports `0.1.0-alpha.5`. Existing config entries are
 kept because the config-flow version remains unchanged.
 
 The integration icon is bundled locally, so it is also shown in Home

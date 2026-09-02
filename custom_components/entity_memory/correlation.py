@@ -55,6 +55,8 @@ def _expected_values(domain: str, service: str, data: dict[str, Any]) -> dict[st
     attribute_names = set(SIGNIFICANT_ATTRIBUTES.get(domain, ()))
     if domain == "cover":
         attribute_names.add("position")
+    if domain == "climate":
+        attribute_names.discard("hvac_mode")
     for name in attribute_names:
         if not name or name not in data:
             continue

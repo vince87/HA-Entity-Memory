@@ -55,6 +55,12 @@ advance beyond alpha.
 - ✅ Classified as an integration service instead of a helper.
 - 🟨 Placement and upgrade validated on the reference container.
 
+### `0.1.0-alpha.5` — climate automation and HACS README hotfix
+
+- ✅ Climate `hvac_mode` no longer requires a duplicate state attribute.
+- ✅ README header image uses an absolute GitHub URL for HACS rendering.
+- 🟨 Climate automation attribution revalidated on the reference container.
+
 ### `0.1.0-beta.1` — broader testing
 
 - Diagnostics and complete documentation.

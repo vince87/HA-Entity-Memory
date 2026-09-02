@@ -5,6 +5,7 @@ from typing import Final
 DOMAIN: Final = "entity_memory"
 
 CONF_ENTITIES: Final = "entities"
+CONF_ENTITY_PATTERNS: Final = "entity_patterns"
 CONF_WINDOW_HOURS: Final = "window_hours"
 CONF_IGNORE_UNAVAILABLE: Final = "ignore_unavailable"
 CONF_ATTRIBUTE_CHANGES: Final = "attribute_changes"

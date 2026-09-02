@@ -27,6 +27,8 @@ changes in real time.
 - `light`, `cover`, `climate`, `switch`, and `binary_sensor`
 - Configurable rolling window (12 hours by default)
 - UI configuration and reconfiguration
+- Compact wildcard selection alongside individual entities (for example
+  `light.*` or `binary_sensor.*_window`), with a maximum of 50 resolved entities
 - Italian and English translations
 - Query actions with response data:
   - `entity_memory.get_events`
@@ -43,8 +45,14 @@ For a manual installation, copy `custom_components/entity_memory` to
 
 When upgrading from an earlier development snapshot, update the repository in
 HACS (or replace the integration directory), restart Home Assistant, and
-confirm that the manifest reports `0.1.0-alpha.5`. Existing config entries are
+confirm that the manifest reports `0.1.0-alpha.6`. Existing config entries are
 kept because the config-flow version remains unchanged.
+
+In the integration options, individual entities can be combined with wildcard
+patterns entered one per line (commas are also accepted). Patterns must include
+a supported domain, such as `light.*`, `switch.kitchen_*`, or
+`binary_sensor.*_window`. Patterns are resolved against entities available when
+the integration is loaded; reload the integration after adding matching entities.
 
 The integration icon is bundled locally, so it is also shown in Home
 Assistant's integration screens without depending on the central brands
@@ -82,6 +90,11 @@ to 180 seconds. It reports `external_or_physical` when no matching command is
 seen, rather than claiming that the change was certainly manual. Restored
 Recorder events may have `unknown` origin and low confidence because historical
 state rows do not always retain enough attribution context.
+
+When an automation action has no `parent_id`, Entity Memory cross-checks the
+exact context ID emitted by Home Assistant's `automation_triggered` event. It
+does not infer automation attribution from timing alone, so unrelated commands
+that happen close together remain unclassified.
 
 ## Troubleshooting
 

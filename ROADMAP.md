@@ -11,9 +11,11 @@ The controlled-test alpha now includes live capture, bounded Recorder restore,
 command-to-state correlation, query actions, UI configuration, translations,
 and local Home Assistant brand icons. The Recorder, config-entry, event-listener,
 response-action, manifest, and local-brand APIs have been checked against the
-Home Assistant Core 2026.8.3 source. Static validation passes; installation and
-behavior still need validation on the reference container before this can
-advance beyond alpha.
+Home Assistant Core 2026.8.3 source. Static validation passes and controlled
+testing is now in progress on the reference Home Assistant Core 2026.8.3
+Container installation with Python 3.14.6 and Recorder SQLite. The integration
+must remain an alpha until the remaining restart, query, configuration, cover,
+and switch tests have passed.
 
 ## Work plan
 
@@ -59,7 +61,50 @@ advance beyond alpha.
 
 - ✅ Climate `hvac_mode` no longer requires a duplicate state attribute.
 - ✅ README header image uses an absolute GitHub URL for HACS rendering.
-- 🟨 Climate automation attribution revalidated on the reference container.
+- ✅ Installation and integration placement validated on the reference container.
+- ✅ Local integration icon validated in Home Assistant.
+- ✅ Climate dashboard commands correlate as `authenticated_command`.
+- ✅ Climate automation commands with usable parent context correlate as
+  `automation`.
+- ✅ Climate changes without a service call remain
+  `external_or_physical` rather than being tied to a vendor integration.
+- ✅ Light commands validated for dashboard/Alexa attribution and automation
+  correlation, including `light.toggle`.
+- ✅ Physical binary-sensor opening and closing validated as
+  `device_observation`.
+- ⚠️ Alexa and dashboard may share the same Home Assistant `user_id`; they are
+  intentionally not distinguished without reliable source metadata.
+- ✅ Implemented exact-context recovery for the observed climate automation
+  case in which the service call lacks both `parent_id` and `user_id`.
+
+### `0.1.0-alpha.6` — compact selection and automation context recovery
+
+- ✅ Replace long entity-only configuration with combined individual selection
+  and wildcard patterns, limited to 50 resolved entities.
+- ✅ Cross-check `automation_triggered` by exact context ID when a matching
+  service call lacks both `parent_id` and `user_id`.
+- ✅ Refuse timing-only attribution so nearby or concurrent automation runs do
+  not create false positives.
+- 🟨 Validate wildcard setup and recovered climate automation attribution on
+  the reference container.
+
+### Remaining controlled tests and corrections
+- ⬜ Validate switch commands from dashboard, automation, and a physical source
+  where available.
+- ⬜ Validate cover open, close, and position changes from dashboard,
+  automation, and a physical source where available.
+- ⬜ Restart Home Assistant and verify bounded restoration from Recorder SQLite.
+- ⬜ Verify restored events without sufficient context remain `unknown` with
+  low confidence.
+- ⬜ Exercise `get_events`, `last_event`, `was_changed`, and `count_events`,
+  including entity, state, origin, time-window, and limit filters.
+- ⬜ Validate entity addition/removal, option changes, reload/unload, the
+  50-entity limit, and rejection of unsupported domains.
+- ⬜ Confirm unavailable/recovery filtering and inspect the Home Assistant log
+  after startup, reload, and shutdown.
+- ⬜ Provide the repository icon through the mechanism expected by HACS; the
+  bundled `brand/` files cover Home Assistant's integration screens but do not
+  supply the HACS catalog icon.
 
 ### `0.1.0-beta.1` — broader testing
 
@@ -78,3 +123,9 @@ advance beyond alpha.
 When work starts or finishes, update both the relevant issue and this roadmap in
 the same change. A release is created only after all exit conditions for its
 gate are satisfied.
+
+Every build offered as an update through HACS must receive a new prerelease
+version (`0.1.0-alpha.6`, `0.1.0-alpha.7`, and so on). Before publication, keep
+the version in `custom_components/entity_memory/manifest.json`, the Git tag, and
+the GitHub prerelease name identical. Never ask testers to update to a different
+commit while retaining the previous visible version.

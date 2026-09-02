@@ -1,4 +1,4 @@
-# Controlled test plan for `0.1.0-alpha.5`
+# Controlled test plan for `0.1.0-alpha.6`
 
 Run this plan only on the reference Home Assistant 2026.8.3 Container system.
 Use test entities or anonymize all IDs before sharing results publicly.
@@ -12,7 +12,8 @@ Use test entities or anonymize all IDs before sharing results publicly.
 ## Install and configure
 
 1. Add `vince87/HA-Entity-Memory` as a HACS custom integration repository.
-2. Select prerelease `0.1.0-alpha.5`, download it, and restart Home Assistant.
+2. Enable prereleases for the repository, select `0.1.0-alpha.6`, download it,
+   and restart Home Assistant.
 3. Confirm that **Entity Memory** appears under **Add integration** and no
    longer appears as a helper type.
 4. Add one test entity from each supported domain: `light`, `cover`, `climate`,
@@ -21,6 +22,9 @@ Use test entities or anonymize all IDs before sharing results publicly.
    keep unknown/unavailable states ignored.
 6. Reopen the options, change the entity selection, save, and confirm that the
    entry reloads without an error. Restore the five-entity test selection.
+7. Replace some individual selections with wildcard patterns such as
+   `light.*` and a narrower name pattern. Confirm matching entities are tracked,
+   unrelated entities are excluded, and rules resolving above 50 are rejected.
 
 ## Query-action smoke tests
 
@@ -44,6 +48,9 @@ one meaningful event appears. Then verify these specific cases:
 1. A dashboard or companion-app command is `authenticated_command` with high
    confidence after its resulting state change.
 2. An automation command is `automation` with high confidence.
+   Repeat with an automation whose resulting service call previously had no
+   `parent_id`; an exact `automation_triggered` context match must still recover
+   `automation`. A nearby unrelated automation must not be used.
 3. An Alexa command using the same Home Assistant account as the dashboard is
    also `authenticated_command`; it must not be labeled as Alexa artificially.
 4. The physical ESPHome climate remote, when it has no matching service call,

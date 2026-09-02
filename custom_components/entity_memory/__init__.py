@@ -7,6 +7,7 @@ from datetime import timedelta
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.components.automation import EVENT_AUTOMATION_TRIGGERED
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ENTITY_ID, EVENT_CALL_SERVICE
 from homeassistant.core import Event, HomeAssistant, ServiceCall, SupportsResponse
@@ -19,6 +20,7 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CONF_ATTRIBUTE_CHANGES,
     CONF_ENTITIES,
+    CONF_ENTITY_PATTERNS,
     CONF_IGNORE_UNAVAILABLE,
     CONF_WINDOW_HOURS,
     DEFAULT_ATTRIBUTE_CHANGES,
@@ -31,6 +33,7 @@ from .const import (
 from .correlation import IntentTracker
 from .models import EventOrigin, MemoryEvent
 from .recorder import async_restore_events
+from .selection import parse_patterns, resolve_entities
 from .store import EventStore
 
 
@@ -82,7 +85,11 @@ async def async_setup_entry(
 ) -> bool:
     """Set up Entity Memory from a config entry."""
     config = {**entry.data, **entry.options}
-    entity_ids = set(config[CONF_ENTITIES])
+    entity_ids = resolve_entities(
+        config.get(CONF_ENTITIES, []),
+        parse_patterns(config.get(CONF_ENTITY_PATTERNS)),
+        hass.states.async_entity_ids(),
+    )
     window = timedelta(hours=float(config.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS)))
     ignore_unavailable = config.get(CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE)
     include_attributes = config.get(CONF_ATTRIBUTE_CHANGES, DEFAULT_ATTRIBUTE_CHANGES)
@@ -92,6 +99,9 @@ async def async_setup_entry(
 
     async def _service_called(event: Event) -> None:
         intents.observe_call(event, entity_ids)
+
+    async def _automation_triggered(event: Event) -> None:
+        intents.observe_automation(event)
 
     async def _state_changed(event: Event) -> None:
         old_state = event.data.get("old_state")
@@ -131,6 +141,9 @@ async def async_setup_entry(
         async_track_state_change_event(hass, list(entity_ids), _state_changed)
     )
     entry.async_on_unload(hass.bus.async_listen(EVENT_CALL_SERVICE, _service_called))
+    entry.async_on_unload(
+        hass.bus.async_listen(EVENT_AUTOMATION_TRIGGERED, _automation_triggered)
+    )
 
     now = dt_util.utcnow()
     restored = await async_restore_events(

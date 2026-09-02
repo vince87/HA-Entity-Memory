@@ -4,16 +4,21 @@
     "step": {
       "user": {
         "title": "Configura Entity Memory",
-        "description": "Seleziona fino a 50 entità i cui cambiamenti recenti saranno disponibili alle automazioni.",
+        "description": "Seleziona entità singole oppure usa pattern wildcard. Saranno monitorate al massimo 50 entità corrispondenti.",
         "data": {
           "entities": "Entità",
+          "entity_patterns": "Pattern entità (uno per riga)",
           "window_hours": "Finestra di memoria (ore)",
           "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
           "attribute_changes": "Registra i cambiamenti significativi degli attributi"
         }
       }
     },
-    "error": {"too_many_entities": "Seleziona non più di 50 entità."},
+    "error": {
+      "too_many_entities": "Le regole corrispondono a più di 50 entità.",
+      "invalid_entity_patterns": "Usa pattern completi di un dominio supportato, ad esempio light.*.",
+      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern che trovi una corrispondenza."
+    },
     "abort": {"single_instance_allowed": "Entity Memory è già configurata."}
   },
   "options": {
@@ -22,13 +27,18 @@
         "title": "Opzioni di Entity Memory",
         "data": {
           "entities": "Entità",
+          "entity_patterns": "Pattern entità (uno per riga)",
           "window_hours": "Finestra di memoria (ore)",
           "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
           "attribute_changes": "Registra i cambiamenti significativi degli attributi"
         }
       }
     },
-    "error": {"too_many_entities": "Seleziona non più di 50 entità."}
+    "error": {
+      "too_many_entities": "Le regole corrispondono a più di 50 entità.",
+      "invalid_entity_patterns": "Usa pattern completi di un dominio supportato, ad esempio light.*.",
+      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern che trovi una corrispondenza."
+    }
   },
   "services": {
     "get_events": {

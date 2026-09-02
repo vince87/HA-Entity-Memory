@@ -11,6 +11,7 @@ from homeassistant.helpers import selector
 from .const import (
     CONF_ATTRIBUTE_CHANGES,
     CONF_ENTITIES,
+    CONF_ENTITY_PATTERNS,
     CONF_IGNORE_UNAVAILABLE,
     CONF_WINDOW_HOURS,
     DEFAULT_ATTRIBUTE_CHANGES,
@@ -22,18 +23,25 @@ from .const import (
     MIN_WINDOW_HOURS,
     SUPPORTED_DOMAINS,
 )
+from .selection import parse_patterns, patterns_are_valid, resolve_entities
 
 
 def _schema(defaults: dict[str, Any]) -> vol.Schema:
     """Build the shared configuration schema."""
     return vol.Schema(
         {
-            vol.Required(
+            vol.Optional(
                 CONF_ENTITIES, default=defaults.get(CONF_ENTITIES, [])
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(
                     domain=list(SUPPORTED_DOMAINS), multiple=True
                 )
+            ),
+            vol.Optional(
+                CONF_ENTITY_PATTERNS,
+                default=defaults.get(CONF_ENTITY_PATTERNS, ""),
+            ): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
             ),
             vol.Required(
                 CONF_WINDOW_HOURS,
@@ -73,7 +81,17 @@ class EntityMemoryConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="single_instance_allowed")
         errors: dict[str, str] = {}
         if user_input is not None:
-            if len(user_input[CONF_ENTITIES]) > MAX_ENTITIES:
+            patterns = parse_patterns(user_input.get(CONF_ENTITY_PATTERNS))
+            resolved = resolve_entities(
+                user_input.get(CONF_ENTITIES, []),
+                patterns,
+                self.hass.states.async_entity_ids(),
+            )
+            if not patterns_are_valid(patterns):
+                errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
+            elif not resolved:
+                errors["base"] = "no_matching_entities"
+            elif len(resolved) > MAX_ENTITIES:
                 errors[CONF_ENTITIES] = "too_many_entities"
             else:
                 return self.async_create_entry(title="Entity Memory", data=user_input)
@@ -97,7 +115,17 @@ class EntityMemoryOptionsFlow(OptionsFlow):
         defaults = {**self.config_entry.data, **self.config_entry.options}
         errors: dict[str, str] = {}
         if user_input is not None:
-            if len(user_input[CONF_ENTITIES]) > MAX_ENTITIES:
+            patterns = parse_patterns(user_input.get(CONF_ENTITY_PATTERNS))
+            resolved = resolve_entities(
+                user_input.get(CONF_ENTITIES, []),
+                patterns,
+                self.hass.states.async_entity_ids(),
+            )
+            if not patterns_are_valid(patterns):
+                errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
+            elif not resolved:
+                errors["base"] = "no_matching_entities"
+            elif len(resolved) > MAX_ENTITIES:
                 errors[CONF_ENTITIES] = "too_many_entities"
             else:
                 return self.async_create_entry(data=user_input)

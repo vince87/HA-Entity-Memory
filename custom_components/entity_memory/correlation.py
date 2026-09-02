@@ -71,6 +71,12 @@ class IntentTracker:
     def __init__(self, timeout: timedelta = CORRELATION_TIMEOUT) -> None:
         self.timeout = timeout
         self._pending: dict[str, deque[ServiceIntent]] = defaultdict(deque)
+        self._automation_contexts: dict[str, datetime] = {}
+
+    def observe_automation(self, event: Event) -> None:
+        """Remember an automation run by its exact Home Assistant context."""
+        self._automation_contexts[event.context.id] = event.time_fired
+        self.prune(event.time_fired)
 
     def observe_call(
         self,
@@ -87,6 +93,11 @@ class IntentTracker:
             return
         context: Context = event.context
         origin = classify_origin(context)
+        if (
+            origin is EventOrigin.UNKNOWN
+            and context.id in self._automation_contexts
+        ):
+            origin = EventOrigin.AUTOMATION
         expected = _expected_values(domain, service, service_data)
         for entity_id in _entity_ids(service_data.get(ATTR_ENTITY_ID)):
             if entity_id not in configured_entities:
@@ -144,6 +155,11 @@ class IntentTracker:
                 empty.append(entity_id)
         for entity_id in empty:
             self._pending.pop(entity_id, None)
+        self._automation_contexts = {
+            context_id: timestamp
+            for context_id, timestamp in self._automation_contexts.items()
+            if timestamp >= cutoff
+        }
 
     @property
     def pending_count(self) -> int:

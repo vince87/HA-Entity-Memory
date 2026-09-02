@@ -51,6 +51,57 @@ def test_matches_automation_by_requested_value() -> None:
     assert intent.service == "climate.set_temperature"
 
 
+def test_recognizes_automation_by_exact_trigger_context() -> None:
+    tracker = IntentTracker()
+    context = Context()
+    tracker.observe_automation(
+        Event(
+            "automation_triggered",
+            {"entity_id": "automation.climate_control"},
+            time_fired_timestamp=NOW.timestamp(),
+            context=context,
+        )
+    )
+    tracker.observe_call(
+        _call(
+            temperature=24,
+            context=context,
+            timestamp=NOW + timedelta(milliseconds=20),
+        ),
+        {ENTITY_ID},
+    )
+
+    intent = tracker.match(_change(24, NOW + timedelta(seconds=2)))
+
+    assert intent is not None
+    assert intent.origin is EventOrigin.AUTOMATION
+
+
+def test_does_not_guess_automation_from_timing_alone() -> None:
+    tracker = IntentTracker()
+    tracker.observe_automation(
+        Event(
+            "automation_triggered",
+            {"entity_id": "automation.other"},
+            time_fired_timestamp=NOW.timestamp(),
+            context=Context(),
+        )
+    )
+    tracker.observe_call(
+        _call(
+            temperature=24,
+            context=Context(),
+            timestamp=NOW + timedelta(milliseconds=20),
+        ),
+        {ENTITY_ID},
+    )
+
+    intent = tracker.match(_change(24, NOW + timedelta(seconds=2)))
+
+    assert intent is not None
+    assert intent.origin is EventOrigin.UNKNOWN
+
+
 def test_does_not_confuse_nearby_different_targets() -> None:
     tracker = IntentTracker()
     tracker.observe_call(

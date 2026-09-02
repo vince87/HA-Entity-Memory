@@ -1,0 +1,79 @@
+{
+  "title": "Entity Memory",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Entity Memory",
+        "description": "Select up to 50 entities whose recent changes should be available to automations.",
+        "data": {
+          "entities": "Entities",
+          "window_hours": "Memory window (hours)",
+          "ignore_unavailable": "Ignore unavailable and unknown states",
+          "attribute_changes": "Track significant attribute changes"
+        }
+      }
+    },
+    "error": {"too_many_entities": "Select no more than 50 entities."},
+    "abort": {"single_instance_allowed": "Entity Memory is already configured."}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Entity Memory options",
+        "data": {
+          "entities": "Entities",
+          "window_hours": "Memory window (hours)",
+          "ignore_unavailable": "Ignore unavailable and unknown states",
+          "attribute_changes": "Track significant attribute changes"
+        }
+      }
+    },
+    "error": {"too_many_entities": "Select no more than 50 entities."}
+  },
+  "services": {
+    "get_events": {
+      "name": "Get events",
+      "description": "Return matching recent events, newest first.",
+      "fields": {
+        "entity_id": {"name": "Entities", "description": "Entities to query."},
+        "since": {"name": "Look-back period", "description": "How far back to search."},
+        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
+        "origins": {"name": "Origins", "description": "Only return events with these origins."},
+        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+      }
+    },
+    "last_event": {
+      "name": "Get last event",
+      "description": "Return the newest matching event.",
+      "fields": {
+        "entity_id": {"name": "Entities", "description": "Entities to query."},
+        "since": {"name": "Look-back period", "description": "How far back to search."},
+        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
+        "origins": {"name": "Origins", "description": "Only return events with these origins."},
+        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+      }
+    },
+    "was_changed": {
+      "name": "Check recent change",
+      "description": "Check whether at least one matching event exists.",
+      "fields": {
+        "entity_id": {"name": "Entities", "description": "Entities to query."},
+        "since": {"name": "Look-back period", "description": "How far back to search."},
+        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
+        "origins": {"name": "Origins", "description": "Only return events with these origins."},
+        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+      }
+    },
+    "count_events": {
+      "name": "Count events",
+      "description": "Count matching events in the requested period.",
+      "fields": {
+        "entity_id": {"name": "Entities", "description": "Entities to query."},
+        "since": {"name": "Look-back period", "description": "How far back to search."},
+        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
+        "origins": {"name": "Origins", "description": "Only return events with these origins."},
+        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+      }
+    }
+  }
+}

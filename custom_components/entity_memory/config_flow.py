@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.helpers import selector
 
@@ -29,8 +28,12 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
     """Build the shared configuration schema."""
     return vol.Schema(
         {
-            vol.Required(CONF_ENTITIES, default=defaults.get(CONF_ENTITIES, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain=list(SUPPORTED_DOMAINS), multiple=True)
+            vol.Required(
+                CONF_ENTITIES, default=defaults.get(CONF_ENTITIES, [])
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(
+                    domain=list(SUPPORTED_DOMAINS), multiple=True
+                )
             ),
             vol.Required(
                 CONF_WINDOW_HOURS,
@@ -45,7 +48,9 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
             ),
             vol.Required(
                 CONF_IGNORE_UNAVAILABLE,
-                default=defaults.get(CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE),
+                default=defaults.get(
+                    CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE
+                ),
             ): selector.BooleanSelector(),
             vol.Required(
                 CONF_ATTRIBUTE_CHANGES,
@@ -60,7 +65,9 @@ class EntityMemoryConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Create the single Entity Memory entry."""
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
@@ -83,7 +90,9 @@ class EntityMemoryConfigFlow(ConfigFlow, domain=DOMAIN):
 class EntityMemoryOptionsFlow(OptionsFlow):
     """Edit Entity Memory configuration."""
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Manage options."""
         defaults = {**self.config_entry.data, **self.config_entry.options}
         errors: dict[str, str] = {}

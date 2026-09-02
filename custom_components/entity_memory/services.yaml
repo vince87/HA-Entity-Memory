@@ -23,9 +23,10 @@ get_events:
         select:
           multiple: true
           options:
-            - user
             - automation
-            - device_or_external
+            - authenticated_command
+            - external_or_physical
+            - device_observation
             - unknown
     limit:
       name: Maximum results

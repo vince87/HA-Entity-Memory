@@ -39,4 +39,3 @@ SIGNIFICANT_ATTRIBUTES: Final = {
     "cover": frozenset({"current_position", "current_tilt_position"}),
     "light": frozenset({"brightness", "color_temp_kelvin", "rgb_color", "effect"}),
 }
-

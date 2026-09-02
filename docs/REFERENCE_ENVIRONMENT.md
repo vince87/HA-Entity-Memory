@@ -39,4 +39,3 @@ no credentials or network identifiers.
 - The climate automation YAML used for the first manual-override scenario.
 - Sample `state_changed` events for dashboard, automation, physical control,
   and vendor-app actions where available.
-

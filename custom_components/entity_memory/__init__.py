@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ENTITY_ID
+from homeassistant.const import ATTR_ENTITY_ID, EVENT_CALL_SERVICE
 from homeassistant.core import Event, HomeAssistant, ServiceCall, SupportsResponse
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -26,10 +28,22 @@ from .const import (
     IGNORED_STATES,
     SIGNIFICANT_ATTRIBUTES,
 )
+from .correlation import IntentTracker
 from .models import EventOrigin, MemoryEvent
+from .recorder import async_restore_events
 from .store import EventStore
 
-type EntityMemoryConfigEntry = ConfigEntry[EventStore]
+
+@dataclass(slots=True)
+class EntityMemoryRuntime:
+    """Runtime state for the single config entry."""
+
+    store: EventStore
+    intents: IntentTracker
+    entity_ids: set[str]
+
+
+type EntityMemoryConfigEntry = ConfigEntry[EntityMemoryRuntime]
 
 QUERY_SCHEMA = vol.Schema(
     {
@@ -42,6 +56,12 @@ QUERY_SCHEMA = vol.Schema(
         ),
     }
 )
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up integration-level actions."""
+    _register_actions(hass)
+    return True
 
 
 def _is_significant(old_state, new_state, include_attributes: bool) -> bool:
@@ -62,18 +82,16 @@ async def async_setup_entry(
 ) -> bool:
     """Set up Entity Memory from a config entry."""
     config = {**entry.data, **entry.options}
-    entity_ids = list(config[CONF_ENTITIES])
-    window = timedelta(
-        hours=float(config.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS))
-    )
-    ignore_unavailable = config.get(
-        CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE
-    )
-    include_attributes = config.get(
-        CONF_ATTRIBUTE_CHANGES, DEFAULT_ATTRIBUTE_CHANGES
-    )
+    entity_ids = set(config[CONF_ENTITIES])
+    window = timedelta(hours=float(config.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS)))
+    ignore_unavailable = config.get(CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE)
+    include_attributes = config.get(CONF_ATTRIBUTE_CHANGES, DEFAULT_ATTRIBUTE_CHANGES)
     store = EventStore(window)
-    entry.runtime_data = store
+    intents = IntentTracker()
+    entry.runtime_data = EntityMemoryRuntime(store, intents, entity_ids)
+
+    async def _service_called(event: Event) -> None:
+        intents.observe_call(event, entity_ids)
 
     async def _state_changed(event: Event) -> None:
         old_state = event.data.get("old_state")
@@ -84,24 +102,61 @@ async def async_setup_entry(
             return
         if not _is_significant(old_state, new_state, include_attributes):
             return
-        store.add(MemoryEvent.from_states(old_state, new_state), dt_util.utcnow())
+        memory_event = MemoryEvent.from_states(old_state, new_state)
+        if intent := intents.match(memory_event):
+            memory_event = memory_event.attributed(
+                origin=intent.origin,
+                confidence="high",
+                context_id=intent.context_id,
+                parent_id=intent.parent_id,
+                user_id=intent.user_id,
+                matched_service=intent.service,
+            )
+        elif memory_event.origin is EventOrigin.UNKNOWN:
+            domain = memory_event.entity_id.partition(".")[0]
+            memory_event = memory_event.attributed(
+                origin=(
+                    EventOrigin.DEVICE_OBSERVATION
+                    if domain == "binary_sensor"
+                    else EventOrigin.EXTERNAL_OR_PHYSICAL
+                ),
+                confidence="high" if domain == "binary_sensor" else "medium",
+            )
+        store.add(memory_event, dt_util.utcnow())
 
     entry.async_on_unload(
-        async_track_state_change_event(hass, entity_ids, _state_changed)
+        async_track_state_change_event(hass, list(entity_ids), _state_changed)
     )
+    entry.async_on_unload(hass.bus.async_listen(EVENT_CALL_SERVICE, _service_called))
+
+    now = dt_util.utcnow()
+    restored = await async_restore_events(
+        hass,
+        entity_ids,
+        now - window,
+        now,
+        include_attributes=include_attributes,
+    )
+    store.extend(restored, dt_util.utcnow())
+
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
-    _register_actions(hass, entry)
     return True
 
 
-def _register_actions(hass: HomeAssistant, entry: EntityMemoryConfigEntry) -> None:
-    """Register query actions for the single config entry."""
+def _register_actions(hass: HomeAssistant) -> None:
+    """Register query actions independently of config-entry state."""
+
+    def _runtime() -> EntityMemoryRuntime:
+        entries = hass.config_entries.async_loaded_entries(DOMAIN)
+        if not entries:
+            raise HomeAssistantError("Entity Memory is not configured or loaded")
+        return entries[0].runtime_data
 
     async def query(call: ServiceCall) -> dict[str, Any]:
         data = call.data
         since = dt_util.utcnow() - data["since"]
         origins = set(data["origins"]) if data.get("origins") else None
-        events = entry.runtime_data.query(
+        events = _runtime().store.query(
             data[ATTR_ENTITY_ID],
             since,
             to_state=data.get("to_state"),
@@ -153,6 +208,4 @@ async def async_unload_entry(
     hass: HomeAssistant, entry: EntityMemoryConfigEntry
 ) -> bool:
     """Unload Entity Memory."""
-    for name in ("get_events", "last_event", "was_changed", "count_events"):
-        hass.services.async_remove(DOMAIN, name)
     return True

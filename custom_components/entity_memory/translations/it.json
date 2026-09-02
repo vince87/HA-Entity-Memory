@@ -29,5 +29,51 @@
       }
     },
     "error": {"too_many_entities": "Seleziona non più di 50 entità."}
+  },
+  "services": {
+    "get_events": {
+      "name": "Ottieni eventi",
+      "description": "Restituisce gli eventi recenti corrispondenti, dal più recente.",
+      "fields": {
+        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
+        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
+        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
+        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
+        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+      }
+    },
+    "last_event": {
+      "name": "Ottieni ultimo evento",
+      "description": "Restituisce l'evento corrispondente più recente.",
+      "fields": {
+        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
+        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
+        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
+        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
+        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+      }
+    },
+    "was_changed": {
+      "name": "Verifica modifica recente",
+      "description": "Verifica se esiste almeno un evento corrispondente.",
+      "fields": {
+        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
+        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
+        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
+        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
+        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+      }
+    },
+    "count_events": {
+      "name": "Conta eventi",
+      "description": "Conta gli eventi corrispondenti nel periodo richiesto.",
+      "fields": {
+        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
+        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
+        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
+        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
+        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+      }
+    }
   }
 }

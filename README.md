@@ -10,16 +10,16 @@ history easy to query from automations.
 Development status and next steps are tracked in the [project roadmap](ROADMAP.md).
 The first real test installation is documented in the
 [reference environment](docs/REFERENCE_ENVIRONMENT.md).
+Use the [controlled-test plan](docs/CONTROLLED_TEST_PLAN.md) to validate this
+prerelease on that installation.
 
 The intended architecture uses Home Assistant Recorder as the only persistent
 source, restores a bounded in-memory cache at startup, and then follows state
 changes in real time.
 
 > [!IMPORTANT]
-> This first alpha scaffold currently collects and queries live changes. The
-> Recorder restore path is not implemented yet because Home Assistant's normal
-> History API does not preserve all context attribution fields. Do not install
-> this snapshot on a production system yet.
+> This is an alpha release for controlled testing. Do not yet rely on it for
+> safety, security, or unattended climate decisions.
 
 ## Initial scope
 
@@ -34,14 +34,21 @@ changes in real time.
   - `entity_memory.was_changed`
   - `entity_memory.count_events`
 
-## Installation (development snapshot)
+## Installation
 
-Copy `custom_components/entity_memory` into the Home Assistant configuration
-directory, restart Home Assistant, then add **Entity Memory** from
-**Settings > Devices & services**.
+Install the repository as a custom integration through HACS, restart Home
+Assistant, then add **Entity Memory** from **Settings > Devices & services**.
+For a manual installation, copy `custom_components/entity_memory` to
+`/config/custom_components/entity_memory` before restarting.
 
-This repository is an early development snapshot. Validate it in a test Home
-Assistant instance before relying on it for climate or security automations.
+When upgrading from an earlier development snapshot, update the repository in
+HACS (or replace the integration directory), restart Home Assistant, and
+confirm that the manifest reports `0.1.0-alpha.2`. Existing config entries are
+kept because the config-flow version remains unchanged.
+
+The integration icon is bundled locally, so it is also shown in Home
+Assistant's integration screens without depending on the central brands
+repository.
 
 ## Example
 
@@ -52,8 +59,8 @@ Assistant instance before relying on it for climate or security automations.
     since: "02:00:00"
     to_state: "off"
     origins:
-      - user
-      - device_or_external
+      - authenticated_command
+      - external_or_physical
   response_variable: memory
 
 - condition: template
@@ -64,15 +71,31 @@ Assistant instance before relying on it for climate or security automations.
 
 Home Assistant context information is useful but not always conclusive:
 
-- a `user_id` normally identifies a dashboard/app user;
+- a `user_id` identifies an authenticated command, but may represent the
+  dashboard, an app, or a voice assistant linked to the same account;
 - a `parent_id` normally identifies an automation or script chain;
 - when both are absent, the source may be a physical control, device, or
   external integration.
 
-Entity Memory therefore reports `device_or_external` instead of claiming that
-such events are certainly manual.
+Entity Memory correlates service calls with later device confirmations for up
+to 180 seconds. It reports `external_or_physical` when no matching command is
+seen, rather than claiming that the change was certainly manual. Restored
+Recorder events may have `unknown` origin and low confidence because historical
+state rows do not always retain enough attribution context.
+
+## Troubleshooting
+
+- If the integration does not appear, confirm that
+  `/config/custom_components/entity_memory/manifest.json` exists and restart
+  Home Assistant.
+- If an action reports that Entity Memory is not loaded, check the integration
+  entry under **Settings > Devices & services** and inspect the Home Assistant
+  log for setup errors.
+- If no historical events appear after restart, confirm that Recorder includes
+  the selected entities and contains rows inside the configured window.
+- Do not report entity IDs, user IDs, context IDs, tokens, or database contents
+  in public issues; anonymize diagnostic examples first.
 
 ## License
 
 MIT
-

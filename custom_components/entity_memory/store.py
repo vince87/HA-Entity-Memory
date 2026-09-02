@@ -22,9 +22,29 @@ class EventStore:
         self.prune(now or event.timestamp)
 
     def extend(self, events: Iterable[MemoryEvent], now: datetime) -> None:
-        """Add restored events in chronological order."""
-        for event in sorted(events, key=lambda item: item.timestamp):
+        """Merge restored and live events in chronological order."""
+        touched: set[str] = set()
+        existing = {
+            (event.entity_id, event.timestamp, event.old_state, event.new_state)
+            for entity_events in self._events.values()
+            for event in entity_events
+        }
+        for event in events:
+            identity = (
+                event.entity_id,
+                event.timestamp,
+                event.old_state,
+                event.new_state,
+            )
+            if identity in existing:
+                continue
             self._events[event.entity_id].append(event)
+            touched.add(event.entity_id)
+            existing.add(identity)
+        for entity_id in touched:
+            self._events[entity_id] = deque(
+                sorted(self._events[entity_id], key=lambda item: item.timestamp)
+            )
         self.prune(now)
 
     def prune(self, now: datetime) -> None:

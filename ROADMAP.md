@@ -50,6 +50,11 @@ advance beyond alpha.
 - ✅ Unavailable and unknown outage/recovery pairs ignored consistently.
 - 🟨 Regression behavior validated on the reference container.
 
+### `0.1.0-alpha.4` — integration placement hotfix
+
+- ✅ Classified as an integration service instead of a helper.
+- 🟨 Placement and upgrade validated on the reference container.
+
 ### `0.1.0-beta.1` — broader testing
 
 - Diagnostics and complete documentation.

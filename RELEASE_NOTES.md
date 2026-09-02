@@ -1,4 +1,4 @@
-# 0.1.0-alpha.3
+# 0.1.0-alpha.4
 
 Corrective prerelease for controlled testing on Home Assistant 2026.x.
 
@@ -10,6 +10,8 @@ Corrective prerelease for controlled testing on Home Assistant 2026.x.
   entity domain.
 - When unavailable/unknown states are ignored, both the outage and the recovery
   transition are excluded from live capture and Recorder restoration.
+- Entity Memory is classified as an integration service instead of a helper,
+  so it is managed from the normal Integrations area.
 
 ## Included
 

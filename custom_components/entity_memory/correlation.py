@@ -161,4 +161,3 @@ class IntentTracker:
     @property
     def pending_count(self) -> int:
         return sum(len(items) for items in self._pending.values())
-

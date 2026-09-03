@@ -7,17 +7,17 @@ Status legend: ⬜ planned · 🟨 in progress · ✅ complete · ⛔ blocked
 
 ## Current status
 
-The controlled-test alpha now includes live capture, bounded Recorder restore,
+The controlled-test beta candidate now includes live capture, bounded Recorder restore,
 command-to-state correlation, query actions, UI configuration, translations,
 and local Home Assistant brand icons. The Recorder, config-entry, event-listener,
 response-action, manifest, and local-brand APIs have been checked against the
 Home Assistant Core 2026.8.3 source. Static validation passes and controlled
-testing is now in progress on the reference Home Assistant Core 2026.8.3
+testing has been completed on the reference Home Assistant Core 2026.8.3
 Container installation with Python 3.14.6 and Recorder SQLite. Recorder restart,
 live capture, wildcard expansion across domains, option reload, query actions,
-and log checks have passed on that system. The integration remains an alpha
-while CI/HACS validation and the remaining wildcard lifecycle edge cases are
-completed.
+and log checks have passed on that system. CI with Python 3.14.6, Home Assistant
+2026.8.3, Ruff, pytest, Hassfest, and HACS validation is passing. The remaining
+wildcard lifecycle and unavailable/recovery edge cases continue during beta.
 
 ## Work plan
 
@@ -28,8 +28,8 @@ completed.
 | 3 | 🟨 | [#3 Finalize query actions](https://github.com/vince87/HA-Entity-Memory/issues/3) | Automations can reliably query, find and count matching events. |
 | 4 | 🟨 | [#4 Improve origin and actor attribution](https://github.com/vince87/HA-Entity-Memory/issues/4) | Results distinguish users, automation chains and ambiguous external/device changes honestly. |
 | 5 | 🟨 | [#6 Complete UI and diagnostics](https://github.com/vince87/HA-Entity-Memory/issues/6) | Setup, reconfiguration and diagnostics work without YAML. |
-| 6 | 🟨 | [#5 Add CI and validation](https://github.com/vince87/HA-Entity-Memory/issues/5) | GitHub continuously validates code, Home Assistant behavior and HACS packaging. |
-| 7 | ⬜ | [#7 Prepare first alpha release](https://github.com/vince87/HA-Entity-Memory/issues/7) | A documented, installable prerelease is available for controlled testing. |
+| 6 | ✅ | [#5 Add CI and validation](https://github.com/vince87/HA-Entity-Memory/issues/5) | GitHub continuously validates code, Home Assistant behavior and HACS packaging. |
+| 7 | ✅ | [#7 Prepare first alpha release](https://github.com/vince87/HA-Entity-Memory/issues/7) | A documented, installable prerelease is available for controlled testing. |
 
 ## Release gates
 
@@ -126,13 +126,13 @@ completed.
 
 ### `0.1.0-beta.1` — broader testing
 
-- Diagnostics and complete documentation.
-- A vendor-independent example automation that consults the last remembered
+- ✅ Diagnostics and complete documentation.
+- ✅ A vendor-independent example automation that consults the last remembered
   climate event before deciding whether to start cooling.
-- An AI-oriented automation guide documenting action responses, defensive
+- ✅ An AI-oriented automation guide documenting action responses, defensive
   templates, attribution limits, and conservative decision rules.
-- Coverage for light, cover, climate, switch and binary_sensor.
-- HACS and CI validation passing.
+- ✅ Coverage for light, cover, climate, switch and binary_sensor.
+- ✅ HACS and CI validation passing.
 
 ### `0.1.0` — first stable release
 
@@ -151,4 +151,3 @@ version (`0.1.0-alpha.7`, `0.1.0-alpha.8`, and so on). Before publication, keep
 the version in `custom_components/entity_memory/manifest.json`, the Git tag, and
 the GitHub prerelease name identical. Never ask testers to update to a different
 commit while retaining the previous visible version.
-

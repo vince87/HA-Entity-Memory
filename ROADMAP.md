@@ -89,6 +89,10 @@ and switch tests have passed.
   the reference container.
 
 ### Remaining controlled tests and corrections
+
+- 🟨 `0.1.0-alpha.7`: ignore live startup registrations with
+  `old_state: null`, clear synthetic Recorder context IDs, and revalidate
+  binary-sensor restoration against Home Assistant History.
 - ⬜ Validate switch commands from dashboard, automation, and a physical source
   where available.
 - ⬜ Validate cover open, close, and position changes from dashboard,

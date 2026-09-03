@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from datetime import datetime
 
 from homeassistant.components.recorder import get_instance, history
@@ -41,9 +42,14 @@ def _restored_events(
                 for name in SIGNIFICANT_ATTRIBUTES.get(domain, ())
             )
             if state_changed or attributes_changed:
-                event = MemoryEvent.from_states(old_state, new_state).attributed(
+                event = replace(
+                    MemoryEvent.from_states(old_state, new_state),
                     origin=EventOrigin.UNKNOWN,
                     confidence="low",
+                    context_id=None,
+                    parent_id=None,
+                    user_id=None,
+                    matched_service=None,
                 )
                 restored.append(event)
             old_state = new_state

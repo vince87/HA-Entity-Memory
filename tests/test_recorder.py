@@ -45,6 +45,7 @@ def test_restores_significant_attribute_change_only() -> None:
     assert events[0].changes["temperature"] == {"old": 24, "new": 23}
     assert events[0].origin is EventOrigin.UNKNOWN
     assert events[0].confidence == "low"
+    assert events[0].context_id is None
 
 
 def test_restored_binary_sensor_remains_unknown() -> None:
@@ -62,6 +63,7 @@ def test_restored_binary_sensor_remains_unknown() -> None:
     assert len(events) == 1
     assert events[0].origin is EventOrigin.UNKNOWN
     assert events[0].confidence == "low"
+    assert events[0].context_id is None
 
 
 def test_ignores_unavailable_outage_and_recovery() -> None:

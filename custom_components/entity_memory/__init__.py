@@ -106,7 +106,7 @@ async def async_setup_entry(
     async def _state_changed(event: Event) -> None:
         old_state = event.data.get("old_state")
         new_state = event.data.get("new_state")
-        if new_state is None:
+        if old_state is None or new_state is None:
             return
         if ignore_unavailable and (
             new_state.state in IGNORED_STATES

@@ -1,3 +1,12 @@
+# Unreleased — 0.1.0-alpha.7
+
+- Startup state registration (`old_state: null`) is no longer stored as a real
+  device observation.
+- Recorder-restored events no longer expose a synthetic context ID when the
+  original historical context is unavailable.
+- Added regression assertions for privacy-safe restored context metadata,
+  including binary sensors.
+
 # 0.1.0-alpha.6
 
 - Added compact wildcard entity selection alongside the existing entity picker.

@@ -24,7 +24,7 @@ source, restores a bounded in-memory cache at startup, and then follows state
 changes in real time.
 
 > [!IMPORTANT]
-> This is an alpha release for controlled testing. Do not yet rely on it for
+> This is a beta release for controlled testing. Do not yet rely on it for
 > safety, security, or unattended climate decisions.
 
 ## Initial scope
@@ -53,7 +53,7 @@ For a manual installation, copy `custom_components/entity_memory` to
 
 When upgrading from an earlier development snapshot, update the repository in
 HACS (or replace the integration directory), restart Home Assistant, and
-confirm that the manifest reports `0.1.0-alpha.8`. Existing config entries are
+confirm that the manifest reports `0.1.0-beta.1`. Existing config entries are
 kept because the config-flow version remains unchanged.
 
 In the integration options, individual entities can be combined with wildcard
@@ -121,4 +121,3 @@ that happen close together remain unclassified.
 ## License
 
 MIT
-

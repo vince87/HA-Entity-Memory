@@ -129,6 +129,8 @@ completed.
 - Diagnostics and complete documentation.
 - A vendor-independent example automation that consults the last remembered
   climate event before deciding whether to start cooling.
+- An AI-oriented automation guide documenting action responses, defensive
+  templates, attribution limits, and conservative decision rules.
 - Coverage for light, cover, climate, switch and binary_sensor.
 - HACS and CI validation passing.
 
@@ -149,3 +151,4 @@ version (`0.1.0-alpha.7`, `0.1.0-alpha.8`, and so on). Before publication, keep
 the version in `custom_components/entity_memory/manifest.json`, the Git tag, and
 the GitHub prerelease name identical. Never ask testers to update to a different
 commit while retaining the previous visible version.
+

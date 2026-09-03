@@ -14,8 +14,8 @@ response-action, manifest, and local-brand APIs have been checked against the
 Home Assistant Core 2026.8.3 source. Static validation passes and controlled
 testing is now in progress on the reference Home Assistant Core 2026.8.3
 Container installation with Python 3.14.6 and Recorder SQLite. The integration
-must remain an alpha until the remaining restart, query, configuration, cover,
-and switch tests have passed.
+must remain an alpha until the remaining restart, query, configuration, and
+wildcard lifecycle tests have passed.
 
 ## Work plan
 

@@ -15,6 +15,9 @@ prerelease on that installation.
 
 For a practical automation pattern, see
 [respecting a recent manual climate decision](docs/EXAMPLE_CLIMATE_AUTOMATION.md).
+For AI-assisted automation generation, use the
+[automation-assistant guide](docs/AI_AUTOMATION_GUIDE.md) as the integration's
+public action and attribution contract.
 
 The intended architecture uses Home Assistant Recorder as the only persistent
 source, restores a bounded in-memory cache at startup, and then follows state
@@ -118,3 +121,4 @@ that happen close together remain unclassified.
 ## License
 
 MIT
+

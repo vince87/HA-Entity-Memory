@@ -1,4 +1,4 @@
-# Controlled test plan for `0.1.0-alpha.8`
+# Controlled test plan for `0.1.0-beta.1`
 
 Run this plan only on the reference Home Assistant 2026.8.3 Container system.
 Use test entities or anonymize all IDs before sharing results publicly.
@@ -12,7 +12,7 @@ Use test entities or anonymize all IDs before sharing results publicly.
 ## Install and configure
 
 1. Add `vince87/HA-Entity-Memory` as a HACS custom integration repository.
-2. Enable prereleases for the repository, select `0.1.0-alpha.8`, download it,
+2. Enable prereleases for the repository, select `0.1.0-beta.1`, download it,
    and restart Home Assistant.
 3. Confirm that **Entity Memory** appears under **Add integration** and no
    longer appears as a helper type.

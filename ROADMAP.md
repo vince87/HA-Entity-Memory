@@ -13,9 +13,11 @@ and local Home Assistant brand icons. The Recorder, config-entry, event-listener
 response-action, manifest, and local-brand APIs have been checked against the
 Home Assistant Core 2026.8.3 source. Static validation passes and controlled
 testing is now in progress on the reference Home Assistant Core 2026.8.3
-Container installation with Python 3.14.6 and Recorder SQLite. The integration
-must remain an alpha until the remaining restart, query, configuration, and
-wildcard lifecycle tests have passed.
+Container installation with Python 3.14.6 and Recorder SQLite. Recorder restart,
+live capture, wildcard expansion across domains, option reload, query actions,
+and log checks have passed on that system. The integration remains an alpha
+while CI/HACS validation and the remaining wildcard lifecycle edge cases are
+completed.
 
 ## Work plan
 
@@ -26,7 +28,7 @@ wildcard lifecycle tests have passed.
 | 3 | 🟨 | [#3 Finalize query actions](https://github.com/vince87/HA-Entity-Memory/issues/3) | Automations can reliably query, find and count matching events. |
 | 4 | 🟨 | [#4 Improve origin and actor attribution](https://github.com/vince87/HA-Entity-Memory/issues/4) | Results distinguish users, automation chains and ambiguous external/device changes honestly. |
 | 5 | 🟨 | [#6 Complete UI and diagnostics](https://github.com/vince87/HA-Entity-Memory/issues/6) | Setup, reconfiguration and diagnostics work without YAML. |
-| 6 | ⬜ | [#5 Add CI and validation](https://github.com/vince87/HA-Entity-Memory/issues/5) | GitHub continuously validates code, Home Assistant behavior and HACS packaging. |
+| 6 | 🟨 | [#5 Add CI and validation](https://github.com/vince87/HA-Entity-Memory/issues/5) | GitHub continuously validates code, Home Assistant behavior and HACS packaging. |
 | 7 | ⬜ | [#7 Prepare first alpha release](https://github.com/vince87/HA-Entity-Memory/issues/7) | A documented, installable prerelease is available for controlled testing. |
 
 ## Release gates
@@ -96,7 +98,7 @@ wildcard lifecycle tests have passed.
 - ✅ `0.1.0-alpha.7`: ignore live startup registrations with
   `old_state: null`, clear synthetic Recorder context IDs, and revalidate
   binary-sensor restoration against Home Assistant History.
-- 🟨 `0.1.0-alpha.8`: resolve wildcard patterns from the entity registry during
+- ✅ `0.1.0-alpha.8`: resolve wildcard patterns from the entity registry during
   startup, automatically follow registry membership changes, and remove the
   hard 50-entity limit.
 - ✅ Hide the default branch from HACS so testers update between named
@@ -105,15 +107,19 @@ wildcard lifecycle tests have passed.
   where available.
 - ✅ Validate cover open, close, and position changes from dashboard,
   automation, and a physical source where available.
-- 🟨 Restart Home Assistant and verify bounded restoration from Recorder SQLite.
+- ✅ Restart Home Assistant and verify bounded restoration from Recorder SQLite.
 - ✅ Verify restored events without sufficient context remain `unknown` with
   low confidence.
-- ⬜ Exercise `get_events`, `last_event`, `was_changed`, and `count_events`,
+- ✅ Exercise `get_events`, `last_event`, `was_changed`, and `count_events`,
   including entity, state, origin, time-window, and limit filters.
-- ⬜ Validate entity addition/removal, option changes, reload/unload, wildcard
-  startup expansion, and rejection of unsupported domains.
-- ⬜ Confirm unavailable/recovery filtering and inspect the Home Assistant log
-  after startup, reload, and shutdown.
+- 🟨 Validate entity addition/removal, option changes, reload/unload, wildcard
+  startup expansion, and rejection of unsupported domains. Option changes,
+  startup expansion, multiple matching entities, and multiple domains pass;
+  registry create/rename/remove remains to be exercised.
+- 🟨 Confirm unavailable/recovery filtering and inspect the Home Assistant log
+  after startup, reload, and shutdown. Logs are clean after update, restart,
+  wildcard tests, and query-action tests; explicit unavailable/recovery testing
+  remains.
 - ⬜ Provide the repository icon through the mechanism expected by HACS; the
   bundled `brand/` files cover Home Assistant's integration screens but do not
   supply the HACS catalog icon.
@@ -121,6 +127,8 @@ wildcard lifecycle tests have passed.
 ### `0.1.0-beta.1` — broader testing
 
 - Diagnostics and complete documentation.
+- A vendor-independent example automation that consults the last remembered
+  climate event before deciding whether to start cooling.
 - Coverage for light, cover, climate, switch and binary_sensor.
 - HACS and CI validation passing.
 

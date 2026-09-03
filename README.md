@@ -13,6 +13,9 @@ The first real test installation is documented in the
 Use the [controlled-test plan](docs/CONTROLLED_TEST_PLAN.md) to validate this
 prerelease on that installation.
 
+For a practical automation pattern, see
+[respecting a recent manual climate decision](docs/EXAMPLE_CLIMATE_AUTOMATION.md).
+
 The intended architecture uses Home Assistant Recorder as the only persistent
 source, restores a bounded in-memory cache at startup, and then follows state
 changes in real time.

@@ -13,12 +13,18 @@ The first real test installation is documented in the
 Use the [controlled-test plan](docs/CONTROLLED_TEST_PLAN.md) to validate this
 prerelease on that installation.
 
+For a practical automation pattern, see
+[respecting a recent manual climate decision](docs/EXAMPLE_CLIMATE_AUTOMATION.md).
+For AI-assisted automation generation, use the
+[automation-assistant guide](docs/AI_AUTOMATION_GUIDE.md) as the integration's
+public action and attribution contract.
+
 The intended architecture uses Home Assistant Recorder as the only persistent
 source, restores a bounded in-memory cache at startup, and then follows state
 changes in real time.
 
 > [!IMPORTANT]
-> This is an alpha release for controlled testing. Do not yet rely on it for
+> This is a beta release for controlled testing. Do not yet rely on it for
 > safety, security, or unattended climate decisions.
 
 ## Initial scope
@@ -47,7 +53,7 @@ For a manual installation, copy `custom_components/entity_memory` to
 
 When upgrading from an earlier development snapshot, update the repository in
 HACS (or replace the integration directory), restart Home Assistant, and
-confirm that the manifest reports `0.1.0-alpha.8`. Existing config entries are
+confirm that the manifest reports `0.1.0-beta.1`. Existing config entries are
 kept because the config-flow version remains unchanged.
 
 In the integration options, individual entities can be combined with wildcard

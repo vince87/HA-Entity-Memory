@@ -93,10 +93,7 @@ class IntentTracker:
             return
         context: Context = event.context
         origin = classify_origin(context)
-        if (
-            origin is EventOrigin.UNKNOWN
-            and context.id in self._automation_contexts
-        ):
+        if origin is EventOrigin.UNKNOWN and context.id in self._automation_contexts:
             origin = EventOrigin.AUTOMATION
         expected = _expected_values(domain, service, service_data)
         for entity_id in _entity_ids(service_data.get(ATTR_ENTITY_ID)):

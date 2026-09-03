@@ -1,4 +1,18 @@
-# Unreleased — 0.1.0-alpha.8
+# 0.1.0-beta.1
+
+First beta for broader controlled testing.
+
+- Added continuous validation with Ruff and pytest on Python 3.14.6 and Home
+  Assistant Core 2026.8.3, plus Hassfest and HACS validation.
+- Added a vendor-independent climate automation example that respects a recent
+  non-automation shutdown before deciding whether to restart cooling.
+- Added an AI-oriented automation guide covering the four response actions,
+  defensive templates, attribution limits, and conservative decision rules.
+- Validated Recorder restoration, live capture, wildcard selection, query
+  actions, and light, switch, cover, climate, and binary-sensor behavior on the
+  reference Home Assistant container.
+
+## Included from 0.1.0-alpha.8
 
 - Wildcard expansion now uses the Home Assistant entity registry as well as
   currently loaded states, so patterns such as `light.*` work immediately after

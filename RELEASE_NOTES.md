@@ -6,6 +6,8 @@
   original historical context is unavailable.
 - Added regression assertions for privacy-safe restored context metadata,
   including binary sensors.
+- HACS now hides the default branch and offers only named releases, so update
+  dialogs display semantic versions instead of abbreviated commit SHAs.
 
 # 0.1.0-alpha.6
 

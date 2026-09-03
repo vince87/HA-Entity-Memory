@@ -73,14 +73,17 @@ and switch tests have passed.
 - ✅ Physical binary-sensor opening and closing validated as
   `device_observation`.
 - ⚠️ Alexa and dashboard may share the same Home Assistant `user_id`; they are
-  intentionally not distinguished without reliable source metadata.
+  intentionally not distinguished without reliable source metadata. This is
+  consistent with Alexa bridges that authenticate through a long-lived token
+  belonging to the same Home Assistant user; a dedicated bridge user could
+  provide separation, but Entity Memory remains vendor-independent.
 - ✅ Implemented exact-context recovery for the observed climate automation
   case in which the service call lacks both `parent_id` and `user_id`.
 
 ### `0.1.0-alpha.6` — compact selection and automation context recovery
 
 - ✅ Replace long entity-only configuration with combined individual selection
-  and wildcard patterns, limited to 50 resolved entities.
+  and wildcard patterns.
 - ✅ Cross-check `automation_triggered` by exact context ID when a matching
   service call lacks both `parent_id` and `user_id`.
 - ✅ Refuse timing-only attribution so nearby or concurrent automation runs do
@@ -90,22 +93,25 @@ and switch tests have passed.
 
 ### Remaining controlled tests and corrections
 
-- 🟨 `0.1.0-alpha.7`: ignore live startup registrations with
+- ✅ `0.1.0-alpha.7`: ignore live startup registrations with
   `old_state: null`, clear synthetic Recorder context IDs, and revalidate
   binary-sensor restoration against Home Assistant History.
+- 🟨 `0.1.0-alpha.8`: resolve wildcard patterns from the entity registry during
+  startup, automatically follow registry membership changes, and remove the
+  hard 50-entity limit.
 - ✅ Hide the default branch from HACS so testers update between named
   prereleases instead of raw commit builds.
-- ⬜ Validate switch commands from dashboard, automation, and a physical source
+- ✅ Validate switch commands from dashboard, automation, and a physical source
   where available.
-- ⬜ Validate cover open, close, and position changes from dashboard,
+- ✅ Validate cover open, close, and position changes from dashboard,
   automation, and a physical source where available.
-- ⬜ Restart Home Assistant and verify bounded restoration from Recorder SQLite.
-- ⬜ Verify restored events without sufficient context remain `unknown` with
+- 🟨 Restart Home Assistant and verify bounded restoration from Recorder SQLite.
+- ✅ Verify restored events without sufficient context remain `unknown` with
   low confidence.
 - ⬜ Exercise `get_events`, `last_event`, `was_changed`, and `count_events`,
   including entity, state, origin, time-window, and limit filters.
-- ⬜ Validate entity addition/removal, option changes, reload/unload, the
-  50-entity limit, and rejection of unsupported domains.
+- ⬜ Validate entity addition/removal, option changes, reload/unload, wildcard
+  startup expansion, and rejection of unsupported domains.
 - ⬜ Confirm unavailable/recovery filtering and inspect the Home Assistant log
   after startup, reload, and shutdown.
 - ⬜ Provide the repository icon through the mechanism expected by HACS; the
@@ -131,7 +137,7 @@ the same change. A release is created only after all exit conditions for its
 gate are satisfied.
 
 Every build offered as an update through HACS must receive a new prerelease
-version (`0.1.0-alpha.6`, `0.1.0-alpha.7`, and so on). Before publication, keep
+version (`0.1.0-alpha.7`, `0.1.0-alpha.8`, and so on). Before publication, keep
 the version in `custom_components/entity_memory/manifest.json`, the Git tag, and
 the GitHub prerelease name identical. Never ask testers to update to a different
 commit while retaining the previous visible version.

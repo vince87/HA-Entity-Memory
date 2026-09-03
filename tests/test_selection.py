@@ -1,10 +1,17 @@
 """Tests for compact entity selection."""
 
 from custom_components.entity_memory.selection import (
+    known_entity_ids,
     parse_patterns,
     patterns_are_valid,
     resolve_entities,
 )
+
+
+def test_known_entity_ids_includes_registry_entities_not_loaded_as_states() -> None:
+    assert known_entity_ids(
+        ["light.loaded"], ["light.loaded", "light.registry_only"]
+    ) == {"light.loaded", "light.registry_only"}
 
 
 def test_parse_patterns_accepts_lines_and_commas() -> None:
@@ -36,3 +43,9 @@ def test_resolve_entities_deduplicates_and_filters_domains() -> None:
         "light.sala_due",
         "binary_sensor.kitchen_window",
     }
+
+
+def test_resolve_entities_has_no_artificial_entity_limit() -> None:
+    available = [f"light.test_{number}" for number in range(75)]
+
+    assert len(resolve_entities([], ["light.*"], available)) == 75

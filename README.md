@@ -28,7 +28,9 @@ changes in real time.
 - Configurable rolling window (12 hours by default)
 - UI configuration and reconfiguration
 - Compact wildcard selection alongside individual entities (for example
-  `light.*` or `binary_sensor.*_window`), with a maximum of 50 resolved entities
+  `light.*` or `binary_sensor.*_window`). There is no hard entity limit; broad
+  patterns should be used carefully because they increase memory use and
+  Recorder load.
 - Italian and English translations
 - Query actions with response data:
   - `entity_memory.get_events`
@@ -45,14 +47,15 @@ For a manual installation, copy `custom_components/entity_memory` to
 
 When upgrading from an earlier development snapshot, update the repository in
 HACS (or replace the integration directory), restart Home Assistant, and
-confirm that the manifest reports `0.1.0-alpha.7`. Existing config entries are
+confirm that the manifest reports `0.1.0-alpha.8`. Existing config entries are
 kept because the config-flow version remains unchanged.
 
 In the integration options, individual entities can be combined with wildcard
 patterns entered one per line (commas are also accepted). Patterns must include
 a supported domain, such as `light.*`, `switch.kitchen_*`, or
-`binary_sensor.*_window`. Patterns are resolved against entities available when
-the integration is loaded; reload the integration after adding matching entities.
+`binary_sensor.*_window`. Patterns are resolved from Home Assistant's entity
+registry as well as its currently loaded states. Matching registry additions,
+removals, and entity-ID changes refresh the selection automatically.
 
 The integration icon is bundled locally, so it is also shown in Home
 Assistant's integration screens without depending on the central brands

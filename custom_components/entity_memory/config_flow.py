@@ -6,6 +6,8 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import selector
 
 from .const import (
@@ -18,12 +20,21 @@ from .const import (
     DEFAULT_IGNORE_UNAVAILABLE,
     DEFAULT_WINDOW_HOURS,
     DOMAIN,
-    MAX_ENTITIES,
     MAX_WINDOW_HOURS,
     MIN_WINDOW_HOURS,
     SUPPORTED_DOMAINS,
 )
-from .selection import parse_patterns, patterns_are_valid, resolve_entities
+from .selection import (
+    known_entity_ids,
+    parse_patterns,
+    patterns_are_valid,
+    resolve_entities,
+)
+
+
+def _available_entity_ids(hass: HomeAssistant) -> set[str]:
+    """Return entities known from both the state machine and registry."""
+    return known_entity_ids(hass.states.async_entity_ids(), er.async_get(hass).entities)
 
 
 def _schema(defaults: dict[str, Any]) -> vol.Schema:
@@ -40,9 +51,7 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
             vol.Optional(
                 CONF_ENTITY_PATTERNS,
                 default=defaults.get(CONF_ENTITY_PATTERNS, ""),
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(multiline=True)
-            ),
+            ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
             vol.Required(
                 CONF_WINDOW_HOURS,
                 default=defaults.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS),
@@ -85,14 +94,12 @@ class EntityMemoryConfigFlow(ConfigFlow, domain=DOMAIN):
             resolved = resolve_entities(
                 user_input.get(CONF_ENTITIES, []),
                 patterns,
-                self.hass.states.async_entity_ids(),
+                _available_entity_ids(self.hass),
             )
             if not patterns_are_valid(patterns):
                 errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
-            elif not resolved:
+            elif not resolved and not patterns:
                 errors["base"] = "no_matching_entities"
-            elif len(resolved) > MAX_ENTITIES:
-                errors[CONF_ENTITIES] = "too_many_entities"
             else:
                 return self.async_create_entry(title="Entity Memory", data=user_input)
         return self.async_show_form(
@@ -119,14 +126,12 @@ class EntityMemoryOptionsFlow(OptionsFlow):
             resolved = resolve_entities(
                 user_input.get(CONF_ENTITIES, []),
                 patterns,
-                self.hass.states.async_entity_ids(),
+                _available_entity_ids(self.hass),
             )
             if not patterns_are_valid(patterns):
                 errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
-            elif not resolved:
+            elif not resolved and not patterns:
                 errors["base"] = "no_matching_entities"
-            elif len(resolved) > MAX_ENTITIES:
-                errors[CONF_ENTITIES] = "too_many_entities"
             else:
                 return self.async_create_entry(data=user_input)
         return self.async_show_form(

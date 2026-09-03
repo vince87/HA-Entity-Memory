@@ -1,4 +1,4 @@
-# Controlled test plan for `0.1.0-alpha.7`
+# Controlled test plan for `0.1.0-alpha.8`
 
 Run this plan only on the reference Home Assistant 2026.8.3 Container system.
 Use test entities or anonymize all IDs before sharing results publicly.
@@ -12,7 +12,7 @@ Use test entities or anonymize all IDs before sharing results publicly.
 ## Install and configure
 
 1. Add `vince87/HA-Entity-Memory` as a HACS custom integration repository.
-2. Enable prereleases for the repository, select `0.1.0-alpha.7`, download it,
+2. Enable prereleases for the repository, select `0.1.0-alpha.8`, download it,
    and restart Home Assistant.
 3. Confirm that **Entity Memory** appears under **Add integration** and no
    longer appears as a helper type.
@@ -24,7 +24,11 @@ Use test entities or anonymize all IDs before sharing results publicly.
    entry reloads without an error. Restore the five-entity test selection.
 7. Replace some individual selections with wildcard patterns such as
    `light.*` and a narrower name pattern. Confirm matching entities are tracked,
-   unrelated entities are excluded, and rules resolving above 50 are rejected.
+   and unrelated entities are excluded. Restart Home Assistant and verify that
+   wildcard matches work without manually reloading Entity Memory.
+8. Add, rename, or remove a matching test entity and confirm that wildcard
+   membership updates automatically. Use broad patterns parsimoniously because
+   there is no hard entity limit and Recorder work grows with the resolved set.
 
 ## Query-action smoke tests
 

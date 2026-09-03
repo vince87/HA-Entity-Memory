@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Set up Entity Memory",
-        "description": "Select individual entities or use wildcard patterns. At most 50 matching entities will be monitored.",
+        "description": "Select individual entities or use wildcard patterns. Broad patterns can increase memory usage and Recorder load.",
         "data": {
           "entities": "Entities",
           "entity_patterns": "Entity patterns (one per line)",
@@ -15,9 +15,8 @@
       }
     },
     "error": {
-      "too_many_entities": "The rules match more than 50 entities.",
       "invalid_entity_patterns": "Use a complete pattern with a supported domain, for example light.*.",
-      "no_matching_entities": "Select at least one entity or enter a pattern that has a match."
+      "no_matching_entities": "Select at least one entity or enter a pattern."
     },
     "abort": {"single_instance_allowed": "Entity Memory is already configured."}
   },
@@ -35,9 +34,8 @@
       }
     },
     "error": {
-      "too_many_entities": "The rules match more than 50 entities.",
       "invalid_entity_patterns": "Use a complete pattern with a supported domain, for example light.*.",
-      "no_matching_entities": "Select at least one entity or enter a pattern that has a match."
+      "no_matching_entities": "Select at least one entity or enter a pattern."
     }
   },
   "services": {

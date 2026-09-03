@@ -1,4 +1,15 @@
-# Unreleased — 0.1.0-alpha.7
+# Unreleased — 0.1.0-alpha.8
+
+- Wildcard expansion now uses the Home Assistant entity registry as well as
+  currently loaded states, so patterns such as `light.*` work immediately after
+  a full Home Assistant restart.
+- Entity registry additions, removals, and entity-ID changes automatically
+  reload wildcard selections when their resolved set changes.
+- Removed the hard 50-entity limit. Broad wildcard patterns remain the user's
+  choice and are documented as potentially increasing memory and Recorder load.
+- Valid wildcard patterns may be saved before they have a current match.
+
+# 0.1.0-alpha.7
 
 - Startup state registration (`old_state: null`) is no longer stored as a real
   device observation.

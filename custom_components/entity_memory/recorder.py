@@ -87,6 +87,8 @@ async def async_restore_events(
     ignore_unavailable: bool,
 ) -> list[MemoryEvent]:
     """Restore events through Recorder's dedicated database executor."""
+    if not entity_ids:
+        return []
     recorder = get_instance(hass)
     states = await recorder.async_add_executor_job(
         _query_history, hass, start, end, sorted(entity_ids)

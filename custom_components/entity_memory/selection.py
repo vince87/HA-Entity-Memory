@@ -8,6 +8,13 @@ from fnmatch import fnmatchcase
 from .const import SUPPORTED_DOMAINS
 
 
+def known_entity_ids(
+    state_entity_ids: Iterable[str], registry_entity_ids: Iterable[str]
+) -> set[str]:
+    """Combine entity IDs available from Home Assistant's two sources."""
+    return set(state_entity_ids) | set(registry_entity_ids)
+
+
 def parse_patterns(value: str | None) -> list[str]:
     """Return normalized patterns entered one per line or comma separated."""
     if not value:
@@ -33,7 +40,7 @@ def patterns_are_valid(patterns: Iterable[str]) -> bool:
 def resolve_entities(
     explicit: Iterable[str], patterns: Iterable[str], available: Iterable[str]
 ) -> set[str]:
-    """Combine explicit entities with wildcard matches from current HA states."""
+    """Combine explicit entities with wildcard matches from known HA entities."""
     resolved = set(explicit)
     candidates = {
         entity_id

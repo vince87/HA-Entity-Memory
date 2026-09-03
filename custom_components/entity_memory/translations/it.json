@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Configura Entity Memory",
-        "description": "Seleziona entità singole oppure usa pattern wildcard. Saranno monitorate al massimo 50 entità corrispondenti.",
+        "description": "Seleziona entità singole oppure usa pattern wildcard. Pattern molto ampi possono aumentare l'uso di memoria e il carico su Recorder.",
         "data": {
           "entities": "Entità",
           "entity_patterns": "Pattern entità (uno per riga)",
@@ -15,9 +15,8 @@
       }
     },
     "error": {
-      "too_many_entities": "Le regole corrispondono a più di 50 entità.",
       "invalid_entity_patterns": "Usa pattern completi di un dominio supportato, ad esempio light.*.",
-      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern che trovi una corrispondenza."
+      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern."
     },
     "abort": {"single_instance_allowed": "Entity Memory è già configurata."}
   },
@@ -35,9 +34,8 @@
       }
     },
     "error": {
-      "too_many_entities": "Le regole corrispondono a più di 50 entità.",
       "invalid_entity_patterns": "Usa pattern completi di un dominio supportato, ad esempio light.*.",
-      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern che trovi una corrispondenza."
+      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern."
     }
   },
   "services": {

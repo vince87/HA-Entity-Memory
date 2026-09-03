@@ -5,7 +5,10 @@ from datetime import UTC, datetime, timedelta
 from homeassistant.core import State
 
 from custom_components.entity_memory.models import EventOrigin
-from custom_components.entity_memory.recorder import _restored_events
+from custom_components.entity_memory.recorder import (
+    _restored_events,
+    async_restore_events,
+)
 
 START = datetime(2026, 9, 2, 6, tzinfo=UTC)
 
@@ -80,3 +83,17 @@ def test_ignores_unavailable_outage_and_recovery() -> None:
     )
 
     assert events == []
+
+
+async def test_empty_selection_does_not_query_recorder() -> None:
+    assert (
+        await async_restore_events(
+            None,
+            set(),
+            START,
+            START + timedelta(hours=1),
+            include_attributes=True,
+            ignore_unavailable=True,
+        )
+        == []
+    )

@@ -10,10 +10,17 @@ import voluptuous as vol
 from homeassistant.components.automation import EVENT_AUTOMATION_TRIGGERED
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ENTITY_ID, EVENT_CALL_SERVICE
-from homeassistant.core import Event, HomeAssistant, ServiceCall, SupportsResponse
+from homeassistant.core import (
+    Event,
+    HomeAssistant,
+    ServiceCall,
+    SupportsResponse,
+    callback,
+)
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
@@ -33,7 +40,7 @@ from .const import (
 from .correlation import IntentTracker
 from .models import EventOrigin, MemoryEvent
 from .recorder import async_restore_events
-from .selection import parse_patterns, resolve_entities
+from .selection import known_entity_ids, parse_patterns, resolve_entities
 from .store import EventStore
 
 
@@ -47,6 +54,12 @@ class EntityMemoryRuntime:
 
 
 type EntityMemoryConfigEntry = ConfigEntry[EntityMemoryRuntime]
+
+
+def _available_entity_ids(hass: HomeAssistant) -> set[str]:
+    """Return entities known from both the state machine and registry."""
+    return known_entity_ids(hass.states.async_entity_ids(), er.async_get(hass).entities)
+
 
 QUERY_SCHEMA = vol.Schema(
     {
@@ -85,10 +98,11 @@ async def async_setup_entry(
 ) -> bool:
     """Set up Entity Memory from a config entry."""
     config = {**entry.data, **entry.options}
+    patterns = parse_patterns(config.get(CONF_ENTITY_PATTERNS))
     entity_ids = resolve_entities(
         config.get(CONF_ENTITIES, []),
-        parse_patterns(config.get(CONF_ENTITY_PATTERNS)),
-        hass.states.async_entity_ids(),
+        patterns,
+        _available_entity_ids(hass),
     )
     window = timedelta(hours=float(config.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS)))
     ignore_unavailable = config.get(CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE)
@@ -144,6 +158,38 @@ async def async_setup_entry(
     entry.async_on_unload(
         hass.bus.async_listen(EVENT_AUTOMATION_TRIGGERED, _automation_triggered)
     )
+
+    if patterns:
+        reload_pending = False
+
+        async def _reload_after_registry_update(_now) -> None:
+            nonlocal reload_pending
+            reload_pending = False
+            await hass.config_entries.async_reload(entry.entry_id)
+
+        @callback
+        def _entity_registry_updated(
+            _event: Event[er.EventEntityRegistryUpdatedData],
+        ) -> None:
+            """Reload when a registry change alters wildcard expansion."""
+            nonlocal reload_pending
+            resolved = resolve_entities(
+                config.get(CONF_ENTITIES, []),
+                patterns,
+                _available_entity_ids(hass),
+            )
+            if reload_pending or resolved == entity_ids:
+                return
+            reload_pending = True
+            entry.async_on_unload(
+                async_call_later(hass, 1, _reload_after_registry_update)
+            )
+
+        entry.async_on_unload(
+            hass.bus.async_listen(
+                er.EVENT_ENTITY_REGISTRY_UPDATED, _entity_registry_updated
+            )
+        )
 
     now = dt_util.utcnow()
     restored = await async_restore_events(

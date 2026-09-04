@@ -1,4 +1,4 @@
-# Initial entity profiles
+# Reference entity profiles
 
 These anonymized profiles define which changes are meaningful for the first
 real-world test set. Entity IDs and friendly names are intentionally omitted.
@@ -47,7 +47,7 @@ Observed capabilities:
 Memory policy: retain only `on`/`off` transitions, interpreted by Home Assistant
 as open/closed. Friendly-name changes are not events.
 
-## Information still required
+## Remaining attribution samples
 
 For context attribution tests, each profile needs representative
 `state_changed` payloads produced by:

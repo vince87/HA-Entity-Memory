@@ -1,4 +1,4 @@
-# Controlled test plan for `0.2.0-beta.1`
+# Controlled test plan for `0.2.0-beta.2`
 
 Run this plan only on the reference Home Assistant 2026.8.3 Container system.
 Use test entities or anonymize all IDs before sharing results publicly.
@@ -12,21 +12,24 @@ Use test entities or anonymize all IDs before sharing results publicly.
 ## Install and configure
 
 1. Add `vince87/HA-Entity-Memory` as a HACS custom integration repository.
-2. Enable prereleases for the repository, select `0.2.0-beta.1`, download it,
+2. Enable prereleases for the repository, select `0.2.0-beta.2`, download it,
    and restart Home Assistant.
-3. Confirm that **Entity Memory** appears under **Add integration** and no
+3. Confirm both HACS and **Settings → Devices & services → Entity Memory** show
+   `0.2.0-beta.2`. A commit hash means a branch build is still selected; use
+   **Redownload** and select the named release before continuing.
+4. Confirm that **Entity Memory** appears under **Add integration** and no
    longer appears as a helper type.
-4. Add one test entity from each supported domain: `light`, `cover`, `climate`,
+5. Add one test entity from each supported domain: `light`, `cover`, `climate`,
    `switch`, and `binary_sensor`.
-5. Keep the default 12-hour window, enable significant attribute changes, and
+6. Keep the default 12-hour window, enable significant attribute changes, and
    keep unknown/unavailable states ignored.
-6. Reopen the options, change the entity selection, save, and confirm that the
+7. Reopen the options, change the entity selection, save, and confirm that the
    entry reloads without an error. Restore the five-entity test selection.
-7. Replace some individual selections with wildcard patterns such as
+8. Replace some individual selections with wildcard patterns such as
    `light.*` and a narrower name pattern. Confirm matching entities are tracked,
    and unrelated entities are excluded. Restart Home Assistant and verify that
    wildcard matches work without manually reloading Entity Memory.
-8. Add, rename, or remove a matching test entity and confirm that wildcard
+9. Add, rename, or remove a matching test entity and confirm that wildcard
    membership updates automatically. Use broad patterns parsimoniously because
    there is no hard entity limit and Recorder work grows with the resolved set.
 
@@ -68,6 +71,20 @@ owned by real automations.
    fail without changing existing data.
 9. Remove every disposable test key after recording the results.
 
+## Diagnostics and lifecycle checks
+
+1. Open the configured entry menu and confirm **Download diagnostics** exists.
+2. Review the downloaded JSON. It may contain aggregate counts, encoded value
+   sizes, limits, and a storage version; it must not contain tracked entity IDs,
+   register keys, register values, user IDs, or context IDs.
+3. Create a disposable register, remove the Entity Memory config entry, add it
+   again, and confirm the register is restored. Delete the disposable register
+   afterward.
+4. Confirm a simulated unsupported future register-storage version fails closed
+   in automated tests and is never overwritten by the current integration.
+5. Confirm automated cancellation tests prove that a storage commit already in
+   progress finishes before cancellation propagates.
+
 ## Live capture and attribution
 
 For every supported domain, create a real state change and verify that exactly
@@ -108,8 +125,8 @@ one meaningful event appears. Then verify these specific cases:
 
 ## Pass criteria and report
 
-The beta passes only if setup, options reload, all query and register actions,
-all five domains, persistence, correlation, attribution fallbacks, and restart
-restoration behave as above without errors. Report the Home Assistant version,
-installation type, anonymized steps, expected/actual result, and relevant
-sanitized log lines.
+The beta passes only if setup, semantic version reporting, options reload, all
+query and register actions, diagnostics privacy, all five domains, persistence,
+correlation, attribution fallbacks, and restart restoration behave as above
+without errors. Report the Home Assistant version, installation type,
+anonymized steps, expected/actual result, and relevant sanitized log lines.

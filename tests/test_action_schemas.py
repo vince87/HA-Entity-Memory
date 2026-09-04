@@ -4,6 +4,7 @@ import pytest
 import voluptuous as vol
 
 from custom_components.entity_memory import (
+    CONFIG_SCHEMA,
     REGISTER_COMPARE_SCHEMA,
     REGISTER_SET_SCHEMA,
 )
@@ -67,3 +68,7 @@ def test_compare_register_accepts_only_key_and_value() -> None:
     assert REGISTER_COMPARE_SCHEMA(
         {"key": "example.phase", "value": {"mode": "active"}}
     ) == {"key": "example.phase", "value": {"mode": "active"}}
+
+
+def test_empty_yaml_configuration_is_accepted() -> None:
+    assert CONFIG_SCHEMA({}) == {}

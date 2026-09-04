@@ -33,9 +33,18 @@ no credentials or network identifiers.
 - The integration must work without Supervisor and must not depend on add-ons.
 - Python 3.14 is the primary runtime target for the reference installation.
 
-## Still needed before integration testing
+## Remaining real-installation evidence
 
-- Representative entity states and attributes for each selected domain.
-- The climate automation YAML used for the first manual-override scenario.
-- Sample `state_changed` events for dashboard, automation, physical control,
-  and vendor-app actions where available.
+The reference installation has verified the named `0.2.0-beta.2` version,
+register creation, optimistic-concurrency conflicts, persistence after an
+integration reload, register deletion, diagnostics availability, and clean
+Entity Memory logs.
+
+Still required before the stable release:
+
+- wildcard membership changes after test-entity creation, rename, and removal;
+- explicit `unknown`/`unavailable` and recovery transitions;
+- a clean HACS installation in addition to the tested upgrade path;
+- representative attribution evidence for dashboard, automation, physical
+  control, and vendor-app changes where available;
+- a multi-day soak test using real automations.

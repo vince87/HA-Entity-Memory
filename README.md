@@ -19,6 +19,7 @@ memory without requiring database templates or visible helper entities:
 
 ## Requirements and scope
 
+- Current prerelease: `0.2.0-beta.2`
 - Home Assistant 2026.x
 - Recorder enabled for entity-event restoration
 - One configuration entry
@@ -32,13 +33,16 @@ memory without requiring database templates or visible helper entities:
 
 1. Add `https://github.com/vince87/HA-Entity-Memory` as a custom **Integration**
    repository in HACS.
-2. Install Entity Memory.
+2. Enable prereleases and install the latest named version, currently
+   `0.2.0-beta.2`.
 3. Restart Home Assistant.
 4. Open **Settings → Devices & services → Add integration** and select
    **Entity Memory**.
 
-Use named prereleases for testing. Do not switch an installed system to an
-arbitrary commit while keeping the same visible version.
+Use named prereleases for testing. Installing a branch or pull-request build
+makes HACS display commit hashes instead of semantic versions. To return to the
+normal release channel, use **Redownload**, explicitly select the named version,
+and restart Home Assistant.
 
 ### Manual
 
@@ -202,6 +206,22 @@ Rolling back the integration does not automatically delete registers. Older
 versions simply ignore their storage. Use `delete_register` when a value should
 be intentionally removed.
 
+After an upgrade, verify the semantic version under **Settings → Devices &
+services → Entity Memory**. A commit hash means HACS is still following a branch
+build rather than a named release.
+
+## Diagnostics
+
+Open **Settings → Devices & services → Entity Memory**, open the menu for the
+configured entry, and choose **Download diagnostics**. The report contains only
+aggregate counts, encoded register value sizes, storage limits, and the storage
+format version. It excludes tracked entity IDs, register keys, register values,
+user IDs, and context IDs.
+
+Attach diagnostics to a bug report only after reviewing the downloaded file.
+Logs and automation traces are separate artifacts and may contain household
+identifiers, so sanitize them before sharing.
+
 ## Troubleshooting
 
 - Integration missing: confirm
@@ -221,7 +241,7 @@ database excerpts in public issues without anonymizing them.
 ## Documentation
 
 - [Persistent register reference](docs/PERSISTENT_REGISTERS.md)
-- [Automation-assistant guide](docs/AI_AUTOMATION_GUIDE.md)
+- [Automation-assistant guide and generation contract](docs/AI_AUTOMATION_GUIDE.md)
 - [Controlled-test plan](docs/CONTROLLED_TEST_PLAN.md)
 - [Reference environment](docs/REFERENCE_ENVIRONMENT.md)
 - [Roadmap](ROADMAP.md)

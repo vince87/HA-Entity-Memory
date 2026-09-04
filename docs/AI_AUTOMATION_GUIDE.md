@@ -1,8 +1,35 @@
 # Entity Memory guide for automation assistants
 
-This document is the machine-readable usage contract for Entity Memory. An AI
-assistant generating Home Assistant automations should follow these rules and
-must not infer more attribution certainty than the returned data provides.
+This document is the machine-readable usage contract for Entity Memory
+`0.2.0-beta.2`. An AI assistant generating Home Assistant automations should
+follow these rules and must not infer more attribution certainty than the
+returned data provides.
+
+## Required design order
+
+Generate automation logic in this order:
+
+1. **Absolute safety constraints** — alarms, locks, fire, rain, wind, frost, or
+   another user-declared interlock. These override remembered preferences.
+2. **Program events** — a schedule boundary or a calculated phase transition.
+3. **Remembered human or uncertain choices** — preserve them until the next
+   program event when the user requests that policy.
+4. **Convenience behavior** — polling, retries, notifications, and cosmetic
+   adjustments.
+
+Entity Memory helps with steps 2 and 3; it must never weaken step 1. If the user
+says an alarm is absolute, check it before any manual-override suppression and
+apply its action even when the latest change was manual or uncertain.
+
+Before writing YAML, obtain or explicitly mark assumptions for:
+
+- every entity ID and the intended action for it;
+- absolute constraints and their active states, including transitional states
+  such as `arming` when relevant;
+- scheduled boundaries and calculated phase rules;
+- how long a remembered choice remains authoritative;
+- startup behavior when history or a register is missing;
+- automation mode and the expected behavior of overlapping runs.
 
 ## Purpose and scope
 
@@ -109,6 +136,11 @@ Every register action returns response data and should normally use
 `shutters.west_floor_1`; do not encode several unrelated meanings into an
 undocumented bitmask.
 
+Home Assistant automation variables exist only for the current run. They are
+lost when that run ends and cannot remember a decision across a later trigger,
+automation reload, or Home Assistant restart. Use a register when the value must
+outlive one execution; use a normal variable for calculations inside one run.
+
 ### Recommended phase-change pattern
 
 An automation that polls periodically can use a register to turn a calculated
@@ -157,6 +189,29 @@ A missing register is initialization, not evidence that a policy changed in the
 physical world. The automation must explicitly choose whether initialization
 should apply its calculated state or merely record it.
 
+### Manual choice until the next program event
+
+For the common rule “a manual position remains until the next scheduled or
+calculated event”, do not store a permanent manual-override flag. Instead:
+
+1. derive the current program phase;
+2. compare it with the last successfully applied phase stored in a register;
+3. when the phase changed, apply the new program action and save the phase;
+4. when the phase did not change, query recent event memory and preserve a
+   non-automation or uncertain position change;
+5. always evaluate absolute constraints before this logic.
+
+This also handles events with no predictable clock time, such as west-facing
+solar shading. Represent the calculated condition as a phase (`shade`, `open`,
+or another user-approved state). A threshold crossing changes the phase and is
+therefore the next program event. A periodic trigger every five or ten minutes
+can evaluate all phases in one automation; a separate trigger for every
+possible transition is unnecessary.
+
+Do not use time since the last run as a substitute for a phase transition. A
+restart, delay, or temporary sensor outage must not manufacture a new program
+event.
+
 `compare_register` never writes. This separation is intentional: compare,
 perform the external action, and save afterward so a failed device action does
 not get recorded as successfully applied.
@@ -166,6 +221,12 @@ When separate executions can update the same key, pass the revision returned by
 key must still be absent. A stale revision produces `conflict: true` and leaves
 the current value untouched; automation authors must handle that response rather
 than assuming the write succeeded.
+
+`expected_revision` accepts a non-negative integer or a string containing only
+decimal digits, which supports templated Home Assistant values. It rejects
+booleans, negative values, fractional numbers (including `1.0`), and non-numeric
+strings. `compare_register` accepts only `key` and `value`; do not pass
+`expected_revision` to it.
 
 See [`PERSISTENT_REGISTERS.md`](PERSISTENT_REGISTERS.md) for exact response
 shapes, persistence behavior, limits, and additional examples.
@@ -231,6 +292,9 @@ conservative rule:
 5. keep normal Home Assistant conditions and safety interlocks separate from
    Entity Memory.
 
+When a constraint is absolute, invert steps 2–4: satisfy that constraint first,
+then use memory only when choosing among actions still allowed by it.
+
 The complete climate example is in
 [`EXAMPLE_CLIMATE_AUTOMATION.md`](EXAMPLE_CLIMATE_AUTOMATION.md).
 
@@ -260,4 +324,34 @@ pattern that satisfies the user's goal.
 After configuration changes, verify the integration is loaded and run a small
 live test. Restored historical events intentionally have `unknown` origin and
 low confidence when Recorder lacks sufficient context.
+
+## Generated-automation review checklist
+
+Before presenting YAML, an AI assistant must verify that:
+
+- all identifiers are user-provided or visibly marked placeholders;
+- every response action has a `response_variable`;
+- templates handle `event: null`, `found: false`, and missing best-effort fields;
+- a register is saved only after the corresponding external action succeeds;
+- stale register writes check `conflict` and do not silently retry forever;
+- missing registers have an explicit initialization policy;
+- absolute constraints cannot be bypassed by remembered manual choices;
+- `unknown` and `external_or_physical` are not described as certainly manual;
+- polling frequency is reasonable and registers are not used for telemetry;
+- automation variables are not mistaken for persistent state;
+- the automation uses `mode: single`, `restart`, `queued`, or `parallel`
+  deliberately;
+- rollback and cleanup identify the register namespace owned by the automation.
+
+If any item is unknown and materially changes behavior, ask the user rather
+than inventing it.
+
+## Diagnostics contract
+
+Home Assistant config-entry diagnostics are safe by construction: they contain
+aggregate tracked-entity counts, register counts, encoded value sizes, limits,
+and the register storage version. They do not contain entity IDs, register
+keys, register values, user IDs, or context IDs. Do not assume the same privacy
+properties for general Home Assistant logs or automation traces; sanitize those
+separately before sharing.
 

@@ -1,4 +1,4 @@
-# Controlled test plan for `0.1.0-beta.1`
+# Controlled test plan for `0.2.0-beta.1`
 
 Run this plan only on the reference Home Assistant 2026.8.3 Container system.
 Use test entities or anonymize all IDs before sharing results publicly.
@@ -12,7 +12,7 @@ Use test entities or anonymize all IDs before sharing results publicly.
 ## Install and configure
 
 1. Add `vince87/HA-Entity-Memory` as a HACS custom integration repository.
-2. Enable prereleases for the repository, select `0.1.0-beta.1`, download it,
+2. Enable prereleases for the repository, select `0.2.0-beta.1`, download it,
    and restart Home Assistant.
 3. Confirm that **Entity Memory** appears under **Add integration** and no
    longer appears as a helper type.
@@ -43,6 +43,30 @@ entity IDs and `since: "00:30:00"`:
 Repeat with `to_state`, each `origins` value, multiple entities, and limits 1
 and 1000. Confirm timestamps are ISO 8601 and results are newest first.
 Calling a query action must never appear later as `matched_service`.
+
+## Persistent-register smoke tests
+
+Use a disposable namespace such as `entity_memory_test.*`; never reuse keys
+owned by real automations.
+
+1. Create a key with `set_register` and `expected_revision: 0`. Confirm
+   `created: true`, `changed: true`, `conflict: false`, and revision 1.
+2. Repeat the same value with revision 1. Confirm that neither the revision nor
+   `updated_at` changes.
+3. Try a different value with stale revision 0. Confirm `conflict: true` and
+   that `get_register` still returns the original value.
+4. Update with revision 1 supplied as a template-compatible string. Confirm
+   revision 2 and the previous value in the response.
+5. Confirm `compare_register` reports both matching and non-matching values and
+   rejects `expected_revision` as an unsupported parameter.
+6. Confirm `list_registers` filters the disposable namespace and respects its
+   limit, then verify `delete_register` for present and missing keys.
+7. Reload the integration and restart Home Assistant after creating a test key.
+   Confirm its value, revision, and timestamp remain unchanged.
+8. Confirm negative revisions, booleans, fractional numbers, non-numeric
+   strings, invalid keys, non-JSON values, oversized values, and count overflow
+   fail without changing existing data.
+9. Remove every disposable test key after recording the results.
 
 ## Live capture and attribution
 
@@ -84,7 +108,8 @@ one meaningful event appears. Then verify these specific cases:
 
 ## Pass criteria and report
 
-The alpha passes only if setup, options reload, all four actions, all five
-domains, correlation, attribution fallbacks, and restart restoration behave as
-above without errors. Report the Home Assistant version, installation type,
-anonymized steps, expected/actual result, and relevant sanitized log lines.
+The beta passes only if setup, options reload, all query and register actions,
+all five domains, persistence, correlation, attribution fallbacks, and restart
+restoration behave as above without errors. Report the Home Assistant version,
+installation type, anonymized steps, expected/actual result, and relevant
+sanitized log lines.

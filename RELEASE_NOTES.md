@@ -1,3 +1,23 @@
+# 0.2.0-beta.1
+
+Second beta for controlled Home Assistant and HACS testing.
+
+- Added entity-less persistent registers for small automation state, with get,
+  set, compare, delete, and filtered-list response actions.
+- Added per-key revisions and optional optimistic concurrency through
+  `expected_revision`; stale writers return a conflict without changing data.
+- Added strict revision validation and separate public schemas for set and
+  compare actions.
+- Hardened restoration so malformed records are ignored individually while
+  valid records remain available.
+- Preserve the last committed in-memory value when a storage save or delete
+  fails.
+- Added service-contract, concurrent-writer, failed-storage, restoration, and
+  schema regression tests.
+- Expanded translations to English, Italian, German, French, Spanish, and
+  Portuguese, and reorganized the documentation as an operational manual.
+- Declared the integration as config-entry-only for YAML validation.
+
 # 0.1.0-beta.1
 
 First beta for broader controlled testing.

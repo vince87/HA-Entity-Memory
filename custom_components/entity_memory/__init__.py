@@ -47,6 +47,8 @@ from .registers import RegisterStore
 from .selection import known_entity_ids, parse_patterns, resolve_entities
 from .store import EventStore
 
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 
 @dataclass(slots=True)
 class EntityMemoryRuntime:

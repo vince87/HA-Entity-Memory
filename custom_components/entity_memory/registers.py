@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
@@ -11,6 +12,7 @@ from typing import Any, Protocol
 
 MAX_REGISTER_VALUE_BYTES = 16_384
 MAX_REGISTERS = 256
+REGISTER_KEY_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]*$")
 
 
 def _utcnow() -> datetime:
@@ -45,6 +47,36 @@ def validate_register_value(value: Any) -> Any:
     return json.loads(encoded)
 
 
+def _restore_record(key: Any, record: Any) -> tuple[str, dict[str, Any]] | None:
+    """Return one safe stored record, ignoring malformed persisted data."""
+    if (
+        not isinstance(key, str)
+        or not 1 <= len(key) <= 128
+        or REGISTER_KEY_PATTERN.fullmatch(key) is None
+        or not isinstance(record, dict)
+    ):
+        return None
+    revision = record.get("revision")
+    updated_at = record.get("updated_at")
+    if (
+        isinstance(revision, bool)
+        or not isinstance(revision, int)
+        or revision < 1
+        or not isinstance(updated_at, str)
+    ):
+        return None
+    try:
+        datetime.fromisoformat(updated_at)
+        value = validate_register_value(record["value"])
+    except KeyError, TypeError, ValueError:
+        return None
+    return key, {
+        "value": value,
+        "revision": revision,
+        "updated_at": updated_at,
+    }
+
+
 class RegisterStore:
     """Store small named values outside the Home Assistant entity registry."""
 
@@ -62,15 +94,11 @@ class RegisterStore:
         """Restore registers from Home Assistant storage."""
         data = await self._storage.async_load()
         registers = data.get("registers", {}) if isinstance(data, dict) else {}
-        if isinstance(registers, dict):
-            self._registers = {
-                key: record
-                for key, record in registers.items()
-                if isinstance(key, str)
-                and isinstance(record, dict)
-                and "value" in record
-                and isinstance(record.get("revision"), int)
-            }
+        if not isinstance(registers, dict):
+            self._registers = {}
+            return
+        restored = (_restore_record(key, record) for key, record in registers.items())
+        self._registers = dict(item for item in restored if item is not None)
 
     def get(self, key: str) -> dict[str, Any]:
         """Return one register in response-data form."""
@@ -121,8 +149,9 @@ class RegisterStore:
                 "revision": 1 if previous is None else previous["revision"] + 1,
                 "updated_at": self._now().isoformat(),
             }
-            self._registers[key] = record
-            await self._async_save()
+            updated = {**self._registers, key: record}
+            await self._async_save(updated)
+            self._registers = updated
             return {
                 "created": previous is None,
                 "changed": True,
@@ -145,9 +174,15 @@ class RegisterStore:
     async def async_delete(self, key: str) -> dict[str, Any]:
         """Delete one register."""
         async with self._lock:
-            previous = self._registers.pop(key, None)
+            previous = self._registers.get(key)
             if previous is not None:
-                await self._async_save()
+                updated = {
+                    stored_key: record
+                    for stored_key, record in self._registers.items()
+                    if stored_key != key
+                }
+                await self._async_save(updated)
+                self._registers = updated
             return {
                 "deleted": previous is not None,
                 "previous": None if previous is None else deepcopy(previous["value"]),
@@ -163,5 +198,5 @@ class RegisterStore:
         items = dict(list(items.items())[:limit])
         return {"registers": items, "count": len(items)}
 
-    async def _async_save(self) -> None:
-        await self._storage.async_save({"registers": deepcopy(self._registers)})
+    async def _async_save(self, registers: dict[str, dict[str, Any]]) -> None:
+        await self._storage.async_save({"registers": deepcopy(registers)})

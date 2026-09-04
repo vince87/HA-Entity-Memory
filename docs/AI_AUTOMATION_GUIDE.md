@@ -186,6 +186,20 @@ An event can contain:
 Treat missing keys and null values as normal. Use defensive templates such as
 `memory.event is none` before reading event fields.
 
+## Stable contracts and best-effort fields
+
+The action names, response container fields, newest-first ordering, register
+revision rules, and missing-data responses documented here are stable public
+contracts. A missing event is represented by `event: null`; a missing register
+uses `found: false`, `value: null`, revision `0`, and `updated_at: null`.
+
+Origin attribution, confidence, context identifiers, user identifiers, and
+`matched_service` are best-effort observations derived from the information
+Home Assistant and the device integration make available. They can be absent or
+less precise after Recorder restoration, delayed device confirmation, or an
+external state update. Automations must therefore remain safe when these fields
+are null, `unknown`, or ambiguous.
+
 ## Origin and confidence rules
 
 - `automation`: attributed to an automation through Home Assistant context or

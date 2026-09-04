@@ -150,8 +150,7 @@ class RegisterStore:
                 "updated_at": self._now().isoformat(),
             }
             updated = {**self._registers, key: record}
-            await self._async_save(updated)
-            self._registers = updated
+            await self._async_commit(updated)
             return {
                 "created": previous is None,
                 "changed": True,
@@ -181,8 +180,7 @@ class RegisterStore:
                     for stored_key, record in self._registers.items()
                     if stored_key != key
                 }
-                await self._async_save(updated)
-                self._registers = updated
+                await self._async_commit(updated)
             return {
                 "deleted": previous is not None,
                 "previous": None if previous is None else deepcopy(previous["value"]),
@@ -198,5 +196,37 @@ class RegisterStore:
         items = dict(list(items.items())[:limit])
         return {"registers": items, "count": len(items)}
 
+    def diagnostics(self) -> dict[str, int]:
+        """Return aggregate sizes without exposing register keys or values."""
+        value_sizes = [
+            len(
+                json.dumps(
+                    record["value"],
+                    ensure_ascii=False,
+                    allow_nan=False,
+                    separators=(",", ":"),
+                ).encode()
+            )
+            for record in self._registers.values()
+        ]
+        return {
+            "count": len(value_sizes),
+            "total_value_bytes": sum(value_sizes),
+            "largest_value_bytes": max(value_sizes, default=0),
+            "maximum_count": MAX_REGISTERS,
+            "maximum_value_bytes": MAX_REGISTER_VALUE_BYTES,
+        }
+
     async def _async_save(self, registers: dict[str, dict[str, Any]]) -> None:
         await self._storage.async_save({"registers": deepcopy(registers)})
+
+    async def _async_commit(self, registers: dict[str, dict[str, Any]]) -> None:
+        """Finish an accepted save before propagating caller cancellation."""
+        save_task = asyncio.create_task(self._async_save(registers))
+        try:
+            await asyncio.shield(save_task)
+        except asyncio.CancelledError:
+            await save_task
+            self._registers = registers
+            raise
+        self._registers = registers

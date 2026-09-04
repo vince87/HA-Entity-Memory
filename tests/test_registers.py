@@ -36,6 +36,27 @@ class FailingStorage(FakeStorage):
         raise RuntimeError("storage unavailable")
 
 
+class FutureVersionStorage(FakeStorage):
+    """Model Home Assistant refusing storage from a newer version."""
+
+    async def async_load(self) -> dict[str, Any] | None:
+        raise RuntimeError("unsupported future storage version")
+
+
+class ControlledStorage(FakeStorage):
+    """Pause a save so cancellation behavior can be exercised."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.started = asyncio.Event()
+        self.finish = asyncio.Event()
+
+    async def async_save(self, data: dict[str, Any]) -> None:
+        self.started.set()
+        await self.finish.wait()
+        await super().async_save(data)
+
+
 @pytest.mark.asyncio
 async def test_register_lifecycle_and_revision() -> None:
     storage = FakeStorage()
@@ -209,6 +230,56 @@ async def test_load_treats_missing_or_invalid_root_as_empty(stored: Any) -> None
     await registers.async_load()
 
     assert registers.list() == {"registers": {}, "count": 0}
+
+
+@pytest.mark.asyncio
+async def test_new_store_instance_restores_existing_registers() -> None:
+    """Config-entry removal and re-add must not erase register storage."""
+    storage = FakeStorage()
+    before_removal = RegisterStore(storage)
+    await before_removal.async_load()
+    created = await before_removal.async_set("automation.phase", "active")
+
+    after_readd = RegisterStore(storage)
+    await after_readd.async_load()
+
+    assert after_readd.get("automation.phase") == {
+        "found": True,
+        "value": "active",
+        "revision": 1,
+        "updated_at": created["updated_at"],
+    }
+
+
+@pytest.mark.asyncio
+async def test_future_storage_rejection_fails_closed_without_overwrite() -> None:
+    storage = FutureVersionStorage({"registers": {"future.private": {}}})
+    registers = RegisterStore(storage)
+
+    with pytest.raises(RuntimeError, match="future storage version"):
+        await registers.async_load()
+
+    assert storage.save_count == 0
+    assert registers.list() == {"registers": {}, "count": 0}
+
+
+@pytest.mark.asyncio
+async def test_cancellation_waits_for_accepted_save_to_commit() -> None:
+    storage = ControlledStorage()
+    registers = RegisterStore(storage)
+    await registers.async_load()
+    writer = asyncio.create_task(registers.async_set("automation.phase", "committed"))
+    await storage.started.wait()
+
+    writer.cancel()
+    storage.finish.set()
+
+    with pytest.raises(asyncio.CancelledError):
+        await writer
+    assert storage.save_count == 1
+    assert storage.data is not None
+    assert storage.data["registers"]["automation.phase"]["value"] == "committed"
+    assert registers.get("automation.phase")["value"] == "committed"
 
 
 def test_register_values_must_be_bounded_json() -> None:

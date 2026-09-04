@@ -42,22 +42,7 @@ Related tracking: [#1](https://github.com/vince87/HA-Entity-Memory/issues/1),
 Exit condition: all scenarios pass on the reference installation with clean
 startup, reload, runtime, and shutdown logs.
 
-### P1 — Harden persistent registers
-
-Goal: make registers safe and predictable for reusable public automations.
-
-- Add privacy-safe diagnostics that report register counts and encoded sizes but
-  never expose keys or values by default.
-- Define lifecycle behavior when the config entry is removed and re-added.
-- Define and test the integration-level behavior when Home Assistant rejects
-  storage created by a future version.
-- Verify cancellation and shutdown behavior around an in-flight storage save on
-  a real Home Assistant installation.
-
-Exit condition: persistence, failure recovery, concurrency, privacy, and
-lifecycle behavior are documented and covered by automated tests.
-
-### P2 — Finish attribution and query contracts
+### P1 — Finish attribution and query contracts
 
 Goal: freeze the public behavior needed by automation authors before `1.0`.
 
@@ -68,17 +53,15 @@ Goal: freeze the public behavior needed by automation authors before `1.0`.
   [#4](https://github.com/vince87/HA-Entity-Memory/issues/4), and
   [#6](https://github.com/vince87/HA-Entity-Memory/issues/6).
 - Close completed issues and replace broad leftovers with small, testable issues.
-- Verify response consistency for missing data across all query and register
-  actions.
-- Document which attribution guarantees are stable and which remain best-effort.
 - Keep safety interlocks explicitly outside Entity Memory's responsibility.
 
 Exit condition: every open issue describes unfinished work, and the automation
 guide matches the tested public API exactly.
 
-### P3 — Release the next beta
+### P2 — Release the next beta
 
-Goal: publish one coherent HACS-testable build containing persistent registers.
+Goal: publish one coherent HACS-testable build containing the remaining beta
+hardening and attribution work.
 
 - Select the next prerelease version after testing; do not expose unversioned
   default-branch builds as updates.
@@ -91,7 +74,7 @@ Goal: publish one coherent HACS-testable build containing persistent registers.
 Exit condition: the named prerelease installs and upgrades through HACS, passes
 CI, and reproduces the reference-installation results.
 
-### P4 — First stable release
+### P3 — First stable release
 
 Goal: promote the tested API without known persistence or restart defects.
 

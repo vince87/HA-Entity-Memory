@@ -84,15 +84,33 @@ class RegisterStore:
             }
         return {"found": True, **deepcopy(record)}
 
-    async def async_set(self, key: str, value: Any) -> dict[str, Any]:
-        """Create or replace a register and persist changed data."""
+    async def async_set(
+        self,
+        key: str,
+        value: Any,
+        expected_revision: int | None = None,
+    ) -> dict[str, Any]:
+        """Create or replace a register, optionally only at an expected revision."""
         value = validate_register_value(value)
         async with self._lock:
             previous = self._registers.get(key)
+            current_revision = 0 if previous is None else previous["revision"]
+            if expected_revision is not None and expected_revision != current_revision:
+                return {
+                    "created": False,
+                    "changed": False,
+                    "conflict": True,
+                    "expected_revision": expected_revision,
+                    **self.get(key),
+                    "previous": None
+                    if previous is None
+                    else deepcopy(previous["value"]),
+                }
             if previous is not None and previous["value"] == value:
                 return {
                     "created": False,
                     "changed": False,
+                    "conflict": False,
                     "previous": deepcopy(previous["value"]),
                     **self.get(key),
                 }
@@ -108,6 +126,7 @@ class RegisterStore:
             return {
                 "created": previous is None,
                 "changed": True,
+                "conflict": False,
                 "previous": None if previous is None else deepcopy(previous["value"]),
                 "found": True,
                 **deepcopy(record),

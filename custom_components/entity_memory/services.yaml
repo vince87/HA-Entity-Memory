@@ -73,6 +73,13 @@ set_register:
       required: true
       selector:
         object:
+    expected_revision:
+      name: Expected revision
+      description: Write only if the current revision matches. Use 0 for a missing key.
+      selector:
+        number:
+          min: 0
+          mode: box
 
 compare_register:
   name: Compare register

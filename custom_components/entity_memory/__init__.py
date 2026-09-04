@@ -84,7 +84,34 @@ REGISTER_KEY = vol.All(
     vol.Match(r"^[a-z0-9][a-z0-9_.-]*$"),
 )
 REGISTER_KEY_SCHEMA = vol.Schema({vol.Required("key"): REGISTER_KEY})
-REGISTER_VALUE_SCHEMA = vol.Schema(
+
+
+def _non_negative_revision(value: Any) -> int:
+    """Validate an integer revision without lossy numeric coercion."""
+    if isinstance(value, bool):
+        raise vol.Invalid("expected_revision must be a non-negative integer")
+    if isinstance(value, int):
+        if value >= 0:
+            return value
+        raise vol.Invalid("expected_revision must be a non-negative integer")
+    if isinstance(value, str) and value.isascii() and value.isdigit():
+        try:
+            return int(value)
+        except ValueError as err:
+            raise vol.Invalid(
+                "expected_revision must be a non-negative integer"
+            ) from err
+    raise vol.Invalid("expected_revision must be a non-negative integer")
+
+
+REGISTER_SET_SCHEMA = vol.Schema(
+    {
+        vol.Required("key"): REGISTER_KEY,
+        vol.Required("value"): object,
+        vol.Optional("expected_revision"): _non_negative_revision,
+    }
+)
+REGISTER_COMPARE_SCHEMA = vol.Schema(
     {vol.Required("key"): REGISTER_KEY, vol.Required("value"): object}
 )
 REGISTER_LIST_SCHEMA = vol.Schema(
@@ -278,7 +305,9 @@ def _register_actions(hass: HomeAssistant) -> None:
     async def set_register(call: ServiceCall) -> dict[str, Any]:
         try:
             return await _runtime().registers.async_set(
-                call.data["key"], call.data["value"]
+                call.data["key"],
+                call.data["value"],
+                call.data.get("expected_revision"),
             )
         except ValueError as err:
             raise HomeAssistantError(str(err)) from err
@@ -311,8 +340,8 @@ def _register_actions(hass: HomeAssistant) -> None:
 
     for name, handler, schema in (
         ("get_register", get_register, REGISTER_KEY_SCHEMA),
-        ("set_register", set_register, REGISTER_VALUE_SCHEMA),
-        ("compare_register", compare_register, REGISTER_VALUE_SCHEMA),
+        ("set_register", set_register, REGISTER_SET_SCHEMA),
+        ("compare_register", compare_register, REGISTER_COMPARE_SCHEMA),
         ("delete_register", delete_register, REGISTER_KEY_SCHEMA),
         ("list_registers", list_registers, REGISTER_LIST_SCHEMA),
     ):

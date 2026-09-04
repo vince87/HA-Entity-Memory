@@ -93,7 +93,8 @@
       "description": "Crea o sostituisce un valore persistente per automazioni.",
       "fields": {
         "key": {"name": "Chiave", "description": "Chiave del registro con namespace."},
-        "value": {"name": "Valore", "description": "Valore compatibile con JSON da memorizzare."}
+        "value": {"name": "Valore", "description": "Valore compatibile con JSON da memorizzare."},
+        "expected_revision": {"name": "Revisione attesa", "description": "Scrive solo se la revisione memorizzata corrisponde; usa 0 per una chiave assente."}
       }
     },
     "compare_register": {

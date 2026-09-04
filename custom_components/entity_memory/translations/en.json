@@ -93,7 +93,8 @@
       "description": "Create or replace a persistent automation value.",
       "fields": {
         "key": {"name": "Key", "description": "Namespaced register key."},
-        "value": {"name": "Value", "description": "JSON-compatible value to store."}
+        "value": {"name": "Value", "description": "JSON-compatible value to store."},
+        "expected_revision": {"name": "Expected revision", "description": "Write only when the stored revision matches; use 0 for a missing key."}
       }
     },
     "compare_register": {

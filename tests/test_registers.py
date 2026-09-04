@@ -87,6 +87,39 @@ async def test_registers_restore_and_list_by_prefix() -> None:
     assert result["registers"]["shutters.south"]["value"] is True
 
 
+@pytest.mark.asyncio
+async def test_expected_revision_prevents_lost_updates() -> None:
+    storage = FakeStorage()
+    registers = RegisterStore(storage)
+    await registers.async_load()
+
+    missing_conflict = await registers.async_set(
+        "automation.phase", "first", expected_revision=1
+    )
+    assert missing_conflict["conflict"] is True
+    assert missing_conflict["revision"] == 0
+    assert storage.save_count == 0
+
+    created = await registers.async_set(
+        "automation.phase", "first", expected_revision=0
+    )
+    assert created["conflict"] is False
+    assert created["revision"] == 1
+
+    stale = await registers.async_set("automation.phase", "stale", expected_revision=0)
+    assert stale["conflict"] is True
+    assert stale["value"] == "first"
+    assert stale["revision"] == 1
+    assert storage.save_count == 1
+
+    updated = await registers.async_set(
+        "automation.phase", "second", expected_revision=1
+    )
+    assert updated["conflict"] is False
+    assert updated["value"] == "second"
+    assert updated["revision"] == 2
+
+
 def test_register_values_must_be_bounded_json() -> None:
     assert validate_register_value([True, 4, "ok"]) == [True, 4, "ok"]
 

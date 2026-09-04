@@ -85,7 +85,11 @@ REGISTER_KEY = vol.All(
 )
 REGISTER_KEY_SCHEMA = vol.Schema({vol.Required("key"): REGISTER_KEY})
 REGISTER_VALUE_SCHEMA = vol.Schema(
-    {vol.Required("key"): REGISTER_KEY, vol.Required("value"): object}
+    {
+        vol.Required("key"): REGISTER_KEY,
+        vol.Required("value"): object,
+        vol.Optional("expected_revision"): vol.All(vol.Coerce(int), vol.Range(min=0)),
+    }
 )
 REGISTER_LIST_SCHEMA = vol.Schema(
     {
@@ -278,7 +282,9 @@ def _register_actions(hass: HomeAssistant) -> None:
     async def set_register(call: ServiceCall) -> dict[str, Any]:
         try:
             return await _runtime().registers.async_set(
-                call.data["key"], call.data["value"]
+                call.data["key"],
+                call.data["value"],
+                call.data.get("expected_revision"),
             )
         except ValueError as err:
             raise HomeAssistantError(str(err)) from err

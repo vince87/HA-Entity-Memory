@@ -56,6 +56,22 @@ The response also reports `created`, `changed`, and `previous`. Writing the same
 value is a no-op: it does not change the timestamp or revision and does not write
 storage again.
 
+`set_register` also accepts an optional `expected_revision` for safe concurrent
+updates. Revision `0` means that the key must not exist:
+
+```yaml
+- action: entity_memory.set_register
+  data:
+    key: shutters.west_floor_1
+    value: shade
+    expected_revision: "{{ register.revision }}"
+  response_variable: result
+```
+
+If another execution changed the register after it was read, no write occurs and
+the response contains `conflict: true` together with the current value and
+revision. A successful or unconditional write returns `conflict: false`.
+
 Valid values include strings, booleans, numbers, null, lists, and objects made
 from those types. Non-JSON objects, non-finite numbers, and oversized values are
 rejected.
@@ -114,9 +130,10 @@ Choose initialization behavior deliberately. With `not memory.found` in the
 expression above, the first run is considered a new phase. An automation that
 must not act on its first run should instead save the calculated policy and stop.
 
-When multiple executions may update the same key concurrently, serialize the
-automation (`mode: single` or another suitable design). `compare_register` and
-`set_register` are separate calls and do not form a transaction together.
+When multiple executions may update the same key concurrently, either serialize
+the automation (`mode: single`) or pass the revision returned by `get_register`
+as `expected_revision` to `set_register`. `compare_register` and `set_register`
+remain separate calls and do not form a transaction together.
 
 ## Delete and list
 

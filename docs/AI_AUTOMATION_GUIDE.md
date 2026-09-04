@@ -161,6 +161,12 @@ should apply its calculated state or merely record it.
 perform the external action, and save afterward so a failed device action does
 not get recorded as successfully applied.
 
+When separate executions can update the same key, pass the revision returned by
+`get_register` as `expected_revision` to `set_register`. Revision `0` means the
+key must still be absent. A stale revision produces `conflict: true` and leaves
+the current value untouched; automation authors must handle that response rather
+than assuming the write succeeded.
+
 See [`PERSISTENT_REGISTERS.md`](PERSISTENT_REGISTERS.md) for exact response
 shapes, persistence behavior, limits, and additional examples.
 

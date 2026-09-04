@@ -50,8 +50,8 @@ Goal: make registers safe and predictable for reusable public automations.
   shape, not only store-level tests.
 - Define and test recovery behavior for missing, malformed, or future-version
   storage data.
-- Decide whether optimistic concurrency is needed. If so, add an
-  `expected_revision` compare-and-set operation without changing the simple API.
+- Validate optimistic concurrency with simultaneous writers and verify that a
+  stale `expected_revision` never changes stored data.
 - Add privacy-safe diagnostics that report register counts and encoded sizes but
   never expose keys or values by default.
 - Define lifecycle behavior when the config entry is removed and re-added.
@@ -115,7 +115,6 @@ Assistant 2026.x.
 These ideas are intentionally outside the first stable release unless beta
 testing proves they are necessary:
 
-- atomic compare-and-set registers;
 - optional register-change events;
 - configurable register count and value-size limits;
 - additional entity domains with explicit significance profiles;

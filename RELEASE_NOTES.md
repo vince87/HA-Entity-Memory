@@ -1,3 +1,20 @@
+# 0.2.0-beta.2
+
+Corrective beta containing the complete register hardening work.
+
+- Added privacy-safe config-entry diagnostics containing aggregate counts and
+  payload sizes only; entity IDs, register keys, and values are never exposed.
+- Made register commits cancellation-safe so a save that has already started
+  finishes before the service call propagates cancellation.
+- Added fail-closed handling and coverage for storage created by a future,
+  unsupported schema version.
+- Added lifecycle coverage for removing and re-adding the config entry while
+  preserving persistent registers.
+- Standardized missing-register service responses and documented stable versus
+  best-effort public contracts.
+- Removed completed register-hardening work from the roadmap and reprioritized
+  the remaining beta tasks.
+
 # 0.2.0-beta.1
 
 Second beta for controlled Home Assistant and HACS testing.

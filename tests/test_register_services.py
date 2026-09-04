@@ -1,5 +1,6 @@
 """Service-level contract tests for persistent registers."""
 
+from datetime import timedelta
 from types import SimpleNamespace
 from typing import Any
 
@@ -11,6 +12,7 @@ from homeassistant.exceptions import HomeAssistantError
 from custom_components.entity_memory import _register_actions
 from custom_components.entity_memory.const import DOMAIN
 from custom_components.entity_memory.registers import RegisterStore
+from custom_components.entity_memory.store import EventStore
 
 
 class FakeStorage:
@@ -68,7 +70,12 @@ async def _services() -> FakeServices:
     services = FakeServices()
     hass = SimpleNamespace(
         services=services,
-        config_entries=FakeConfigEntries(SimpleNamespace(registers=registers)),
+        config_entries=FakeConfigEntries(
+            SimpleNamespace(
+                registers=registers,
+                store=EventStore(timedelta(hours=12)),
+            )
+        ),
     )
     _register_actions(hass)
     return services
@@ -179,3 +186,33 @@ async def test_service_translates_invalid_values_to_home_assistant_error() -> No
         await services.call(
             "compare_register", {"key": "test.phase", "value": object()}
         )
+
+
+@pytest.mark.asyncio
+async def test_missing_query_and_register_responses_are_consistent() -> None:
+    services = await _services()
+    query = {"entity_id": ["light.missing"], "since": "00:30:00"}
+
+    assert await services.call("get_events", query) == {"events": [], "count": 0}
+    assert await services.call("last_event", query) == {"event": None}
+    assert await services.call("was_changed", query) == {
+        "found": False,
+        "event": None,
+    }
+    assert await services.call("count_events", query) == {"count": 0}
+    assert await services.call("get_register", {"key": "test.missing"}) == {
+        "found": False,
+        "value": None,
+        "revision": 0,
+        "updated_at": None,
+    }
+    assert await services.call(
+        "compare_register", {"key": "test.missing", "value": None}
+    ) == {
+        "found": False,
+        "value": None,
+        "revision": 0,
+        "updated_at": None,
+        "matches": False,
+        "compared_value": None,
+    }

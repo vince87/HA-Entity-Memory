@@ -158,3 +158,25 @@ appear in dashboards, entity selectors, history, or Recorder.
 Deleting or re-adding the integration is not a supported register-reset
 mechanism. Use `delete_register` for one key, or list a namespace and delete its
 keys explicitly when an automation is retired.
+
+Register storage belongs to the integration domain rather than to one config
+entry. Removing and later re-adding the config entry therefore restores the
+existing registers. This prevents accidental state loss, but it also means that
+retired automation keys should be deleted explicitly.
+
+If Home Assistant detects register storage created by an unsupported future
+version, loading fails closed: Entity Memory does not expose or overwrite that
+data. Install a compatible integration version rather than editing the storage
+file manually.
+
+Once a register write has entered its storage commit, caller cancellation waits
+for that commit to finish before it propagates. This keeps runtime state and the
+persisted value aligned during automation cancellation or shutdown.
+
+## Diagnostics and privacy
+
+Downloaded Home Assistant diagnostics contain only aggregate register counts,
+encoded value sizes, and configured limits. Register keys and values are never
+included. Tracked entity IDs are also omitted; only their total count is
+reported. This makes diagnostics suitable for issue reports without publishing
+automation state or household identifiers.

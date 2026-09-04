@@ -81,10 +81,22 @@ Counts matching events. Response shape: `memory.count` is an integer.
 
 ## Persistent registers
 
-Registers store small JSON-compatible automation values without exposing helper
-entities. They survive Home Assistant restarts and are separate from Recorder
-event history. Use them for phases, checkpoints, flags, and last-applied policy;
-do not use them for secrets, telemetry, or safety state.
+Persistent registers are named, entity-less values for automation state. They
+solve a different problem from the entity-event history:
+
+- event history answers what changed, when, and with which attribution;
+- registers remember an automation's own phase, checkpoint, flags, or last
+  applied policy.
+
+Registers survive Home Assistant restarts but do not create helper entities.
+They are stored by the integration, not in Recorder, and do not appear in the
+entity registry, dashboards, or history.
+
+Use registers for small JSON-compatible values that change infrequently. Do not
+use them for secrets, safety state, large documents, counters updated many times
+per minute, or telemetry.
+
+### Available register actions
 
 - `entity_memory.get_register` reads a key;
 - `entity_memory.set_register` creates or replaces a value;
@@ -92,10 +104,65 @@ do not use them for secrets, telemetry, or safety state.
 - `entity_memory.delete_register` removes a key;
 - `entity_memory.list_registers` returns keys, optionally under a prefix.
 
-Prefer readable namespaced keys such as `shutters.west_floor_1`. Compare the
-stored phase, perform the intended device action, and update the register only
-after the action succeeds. See [`PERSISTENT_REGISTERS.md`](PERSISTENT_REGISTERS.md)
-for response shapes, limits, and examples.
+Every register action returns response data and should normally use
+`response_variable`. Prefer readable namespaced keys such as
+`shutters.west_floor_1`; do not encode several unrelated meanings into an
+undocumented bitmask.
+
+### Recommended phase-change pattern
+
+An automation that polls periodically can use a register to turn a calculated
+condition transition into a program event. This is useful when the transition
+time is variable, for example a solar threshold.
+
+1. Calculate the current policy or phase.
+2. Read its register.
+3. Treat a missing or different value as a new program event.
+4. Apply the intended device actions.
+5. Write the new phase only after those actions succeed.
+6. If the phase is unchanged, preserve any relevant recent non-automation
+   decision found in entity-event history.
+
+```yaml
+- variables:
+    calculated_phase: >-
+      {{ 'shade' if states('sensor.example_level') | float(0) > 50
+         else 'open' }}
+
+- action: entity_memory.get_register
+  data:
+    key: example_cover.solar_phase
+  response_variable: phase_memory
+
+- variables:
+    phase_changed: >-
+      {{ not phase_memory.found
+         or phase_memory.value != calculated_phase }}
+
+# Apply the device action here. A phase change may supersede an older manual
+# choice; an unchanged phase should still consult entity-event memory.
+
+- if:
+    - condition: template
+      value_template: "{{ phase_changed }}"
+  then:
+    - action: entity_memory.set_register
+      data:
+        key: example_cover.solar_phase
+        value: "{{ calculated_phase }}"
+      response_variable: phase_saved
+```
+
+A missing register is initialization, not evidence that a policy changed in the
+physical world. The automation must explicitly choose whether initialization
+should apply its calculated state or merely record it.
+
+`compare_register` never writes. This separation is intentional: compare,
+perform the external action, and save afterward so a failed device action does
+not get recorded as successfully applied.
+
+See [`PERSISTENT_REGISTERS.md`](PERSISTENT_REGISTERS.md) for exact response
+shapes, persistence behavior, limits, and additional examples.
 
 Filters may include entity, time window, old state, new state, and origin as
 documented by the integration's action selector. Prefer the narrowest useful

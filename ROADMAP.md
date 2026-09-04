@@ -46,17 +46,13 @@ startup, reload, runtime, and shutdown logs.
 
 Goal: make registers safe and predictable for reusable public automations.
 
-- Add Home Assistant service-level tests for every register action and response
-  shape, not only store-level tests.
-- Define and test recovery behavior for missing, malformed, or future-version
-  storage data.
-- Validate optimistic concurrency with simultaneous writers and verify that a
-  stale `expected_revision` never changes stored data.
 - Add privacy-safe diagnostics that report register counts and encoded sizes but
   never expose keys or values by default.
 - Define lifecycle behavior when the config entry is removed and re-added.
-- Confirm that repeated writes and shutdown during a write cannot lose a
-  previously committed value.
+- Define and test the integration-level behavior when Home Assistant rejects
+  storage created by a future version.
+- Verify cancellation and shutdown behavior around an in-flight storage save on
+  a real Home Assistant installation.
 
 Exit condition: persistence, failure recovery, concurrency, privacy, and
 lifecycle behavior are documented and covered by automated tests.

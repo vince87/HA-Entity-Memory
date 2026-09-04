@@ -1,5 +1,6 @@
 """Tests for persistent automation registers."""
 
+import asyncio
 from datetime import UTC, datetime
 from typing import Any
 
@@ -26,6 +27,13 @@ class FakeStorage:
     async def async_save(self, data: dict[str, Any]) -> None:
         self.data = data
         self.save_count += 1
+
+
+class FailingStorage(FakeStorage):
+    """Storage backend that rejects every save."""
+
+    async def async_save(self, data: dict[str, Any]) -> None:
+        raise RuntimeError("storage unavailable")
 
 
 @pytest.mark.asyncio
@@ -118,6 +126,89 @@ async def test_expected_revision_prevents_lost_updates() -> None:
     assert updated["conflict"] is False
     assert updated["value"] == "second"
     assert updated["revision"] == 2
+
+
+@pytest.mark.asyncio
+async def test_simultaneous_writers_allow_exactly_one_revision() -> None:
+    storage = FakeStorage()
+    registers = RegisterStore(storage)
+    await registers.async_load()
+
+    first, second = await asyncio.gather(
+        registers.async_set("automation.phase", "first", expected_revision=0),
+        registers.async_set("automation.phase", "second", expected_revision=0),
+    )
+
+    assert sorted(result["conflict"] for result in (first, second)) == [False, True]
+    winner = first if not first["conflict"] else second
+    assert registers.get("automation.phase")["value"] == winner["value"]
+    assert registers.get("automation.phase")["revision"] == 1
+    assert storage.save_count == 1
+
+
+@pytest.mark.asyncio
+async def test_failed_save_preserves_last_committed_value() -> None:
+    initial = {
+        "registers": {
+            "automation.phase": {
+                "value": "committed",
+                "revision": 4,
+                "updated_at": "2026-09-04T10:00:00+00:00",
+            }
+        }
+    }
+    registers = RegisterStore(FailingStorage(initial))
+    await registers.async_load()
+
+    with pytest.raises(RuntimeError, match="storage unavailable"):
+        await registers.async_set("automation.phase", "uncommitted")
+    assert registers.get("automation.phase")["value"] == "committed"
+    assert registers.get("automation.phase")["revision"] == 4
+
+    with pytest.raises(RuntimeError, match="storage unavailable"):
+        await registers.async_delete("automation.phase")
+    assert registers.get("automation.phase")["value"] == "committed"
+
+
+@pytest.mark.asyncio
+async def test_load_keeps_valid_records_and_ignores_malformed_records() -> None:
+    valid = {
+        "value": {"mode": "night"},
+        "revision": 2,
+        "updated_at": "2026-09-04T10:00:00+00:00",
+    }
+    storage = FakeStorage(
+        {
+            "registers": {
+                "valid.phase": valid,
+                "Bad Key": valid,
+                "bad.boolean_revision": {**valid, "revision": True},
+                "bad.negative_revision": {**valid, "revision": -1},
+                "bad.timestamp": {**valid, "updated_at": "not-a-date"},
+                "bad.missing_value": {
+                    "revision": 1,
+                    "updated_at": "2026-09-04T10:00:00+00:00",
+                },
+            }
+        }
+    )
+    registers = RegisterStore(storage)
+
+    await registers.async_load()
+
+    assert registers.list() == {
+        "registers": {"valid.phase": valid},
+        "count": 1,
+    }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stored", [None, [], "invalid", {"registers": []}])
+async def test_load_treats_missing_or_invalid_root_as_empty(stored: Any) -> None:
+    registers = RegisterStore(FakeStorage(stored))
+    await registers.async_load()
+
+    assert registers.list() == {"registers": {}, "count": 0}
 
 
 def test_register_values_must_be_bounded_json() -> None:

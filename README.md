@@ -18,10 +18,13 @@ For a practical automation pattern, see
 For AI-assisted automation generation, use the
 [automation-assistant guide](docs/AI_AUTOMATION_GUIDE.md) as the integration's
 public action and attribution contract.
+For small automation values that must survive restarts without helper entities,
+see [persistent registers](docs/PERSISTENT_REGISTERS.md).
 
-The intended architecture uses Home Assistant Recorder as the only persistent
-source, restores a bounded in-memory cache at startup, and then follows state
-changes in real time.
+Entity-event history uses Home Assistant Recorder as its persistent source,
+restores a bounded in-memory cache at startup, and then follows state changes in
+real time. Persistent registers use Home Assistant's integration storage and
+remain separate from Recorder and the entity registry.
 
 > [!IMPORTANT]
 > This is a beta release for controlled testing. Do not yet rely on it for
@@ -43,6 +46,12 @@ changes in real time.
   - `entity_memory.last_event`
   - `entity_memory.was_changed`
   - `entity_memory.count_events`
+- Entity-less persistent register actions:
+  - `entity_memory.get_register`
+  - `entity_memory.set_register`
+  - `entity_memory.compare_register`
+  - `entity_memory.delete_register`
+  - `entity_memory.list_registers`
 
 ## Installation
 

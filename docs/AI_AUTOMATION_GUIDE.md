@@ -79,6 +79,24 @@ newest match when found.
 
 Counts matching events. Response shape: `memory.count` is an integer.
 
+## Persistent registers
+
+Registers store small JSON-compatible automation values without exposing helper
+entities. They survive Home Assistant restarts and are separate from Recorder
+event history. Use them for phases, checkpoints, flags, and last-applied policy;
+do not use them for secrets, telemetry, or safety state.
+
+- `entity_memory.get_register` reads a key;
+- `entity_memory.set_register` creates or replaces a value;
+- `entity_memory.compare_register` compares without writing;
+- `entity_memory.delete_register` removes a key;
+- `entity_memory.list_registers` returns keys, optionally under a prefix.
+
+Prefer readable namespaced keys such as `shutters.west_floor_1`. Compare the
+stored phase, perform the intended device action, and update the register only
+after the action succeeds. See [`PERSISTENT_REGISTERS.md`](PERSISTENT_REGISTERS.md)
+for response shapes, limits, and examples.
+
 Filters may include entity, time window, old state, new state, and origin as
 documented by the integration's action selector. Prefer the narrowest useful
 time window.

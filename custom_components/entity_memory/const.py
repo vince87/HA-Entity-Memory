@@ -3,6 +3,8 @@
 from typing import Final
 
 DOMAIN: Final = "entity_memory"
+REGISTER_STORAGE_KEY: Final = f"{DOMAIN}.registers"
+REGISTER_STORAGE_VERSION: Final = 1
 
 CONF_ENTITIES: Final = "entities"
 CONF_ENTITY_PATTERNS: Final = "entity_patterns"

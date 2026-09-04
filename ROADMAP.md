@@ -1,112 +1,100 @@
 # Entity Memory roadmap
 
-This roadmap contains only planned work. Completed implementation history lives
-in Git history, pull requests, and release notes.
+This file lists unfinished work only. Completed changes belong in release notes,
+pull requests, and Git history.
 
 ## Current baseline
 
-Entity Memory is an installable beta for Home Assistant 2026.x. It provides a
-bounded entity-event cache restored from Recorder, live change capture, honest
-origin attribution, individual and wildcard entity selection, response-data
-query actions, and entity-less persistent registers for automation state.
+The current prerelease is `0.2.0-beta.2` for Home Assistant 2026.x. Entity
+Memory already provides Recorder-backed event memory, live capture, conservative
+origin attribution, UI and wildcard entity selection, automation query actions,
+persistent registers with optimistic concurrency, privacy-safe diagnostics, and
+HACS installation.
 
-The supported entity domains are `light`, `cover`, `climate`, `switch`, and
-`binary_sensor`. CI validates Python 3.14, Home Assistant 2026.8.3, Ruff, pytest,
-Hassfest, and HACS packaging.
+Supported entity domains are `light`, `cover`, `climate`, `switch`, and
+`binary_sensor`. CI covers Python 3.14, Home Assistant 2026.8.3, Ruff, pytest,
+Hassfest, and HACS validation.
 
-## Priorities
+## Now — close the beta validation gaps
 
-### P0 — Validate the expanded beta
+These checks decide whether another code change is required.
 
-Goal: prove that existing event memory and the new persistent registers behave
-reliably on a real Home Assistant installation.
+- Verify wildcard selections after an entity is created, renamed, and removed.
+- Verify configured handling of `unknown` and `unavailable`, including recovery
+  to a valid state.
+- Exercise invalid register keys and JSON values, oversized values, and the
+  register-count limit; existing data must remain intact after every rejection.
+- Verify an options change reloads the integration without losing event memory
+  or persistent registers.
+- Test a clean HACS installation of `0.2.0-beta.2` in addition to the verified
+  upgrade installation.
+- Run a multi-day real-automation soak test combining event queries, origin
+  attribution, and persistent registers; startup, reload, runtime, and shutdown
+  logs must remain clean.
 
-- Exercise all register actions from Developer Tools and automations:
-  `get_register`, `set_register`, `compare_register`, `delete_register`, and
-  `list_registers`.
-- Verify register persistence across restart, integration reload, option reload,
-  and upgrade from `0.1.0-beta.1`.
-- Verify no-op writes preserve `revision` and `updated_at`, while changed values
-  increment the revision exactly once.
-- Verify invalid keys, invalid JSON values, oversized values, and the register
-  count limit fail clearly without damaging existing data.
-- Exercise wildcard membership changes for entity create, rename, and removal.
-- Exercise explicit `unknown`/`unavailable` outage and recovery transitions.
-- Run a multi-day automation soak test combining event attribution and registers.
+Completion gate: every scenario passes on the reference installation or has a
+small reproducible issue describing the failure.
 
-Related tracking: [#1](https://github.com/vince87/HA-Entity-Memory/issues/1),
-[#2](https://github.com/vince87/HA-Entity-Memory/issues/2),
-[#3](https://github.com/vince87/HA-Entity-Memory/issues/3), and
-[#6](https://github.com/vince87/HA-Entity-Memory/issues/6).
+## Next — freeze the public contract
 
-Exit condition: all scenarios pass on the reference installation with clean
-startup, reload, runtime, and shutdown logs.
-
-### P1 — Finish attribution and query contracts
-
-Goal: freeze the public behavior needed by automation authors before `1.0`.
-
-- Review the remaining acceptance criteria in
-  [#1](https://github.com/vince87/HA-Entity-Memory/issues/1),
+- Review issues [#1](https://github.com/vince87/HA-Entity-Memory/issues/1),
   [#2](https://github.com/vince87/HA-Entity-Memory/issues/2),
-  [#3](https://github.com/vince87/HA-Entity-Memory/issues/3),
-  [#4](https://github.com/vince87/HA-Entity-Memory/issues/4), and
-  [#6](https://github.com/vince87/HA-Entity-Memory/issues/6).
-- Close completed issues and replace broad leftovers with small, testable issues.
-- Keep safety interlocks explicitly outside Entity Memory's responsibility.
+  [#3](https://github.com/vince87/HA-Entity-Memory/issues/3), and
+  [#6](https://github.com/vince87/HA-Entity-Memory/issues/6); close criteria
+  already satisfied and move any real remainder into focused issues.
+- Finish the attribution decisions tracked in
+  [#4](https://github.com/vince87/HA-Entity-Memory/issues/4), keeping ambiguous
+  physical and external changes explicitly uncertain.
+- Freeze action names, input validation, response fields, timestamp format, and
+  documented error behavior for the first stable release.
+- Ensure the automation guide and examples match the tested contract exactly.
+- Keep safety interlocks outside Entity Memory's responsibility and state this
+  boundary consistently in user documentation.
 
-Exit condition: every open issue describes unfinished work, and the automation
-guide matches the tested public API exactly.
+Completion gate: every open issue represents unfinished work, and automation
+authors can rely on one documented, tested contract.
 
-### P2 — Release the next beta
+## Next prerelease
 
-Goal: publish one coherent HACS-testable build containing the remaining beta
-hardening and attribution work.
+Create another beta only when validation or contract work produces a meaningful
+change.
 
-- Select the next prerelease version after testing; do not expose unversioned
-  default-branch builds as updates.
-- Keep `manifest.json`, Git tag, GitHub prerelease name, and release notes on the
-  same version.
-- Document upgrade, rollback, and register cleanup procedures.
 - Resolve the HACS catalog icon delivery gap.
-- Test a clean installation and an upgrade from `0.1.0-beta.1`.
+- Document clean installation, upgrade, rollback, and register cleanup.
+- Keep `manifest.json`, Git tag, GitHub prerelease, and release notes on the same
+  version.
+- Repeat HACS clean-install and upgrade checks for the release candidate.
 
-Exit condition: the named prerelease installs and upgrades through HACS, passes
-CI, and reproduces the reference-installation results.
+Completion gate: the named prerelease installs through HACS, passes all CI, and
+reproduces the reference-installation results.
 
-### P3 — First stable release
+## First stable release
 
-Goal: promote the tested API without known persistence or restart defects.
+- Complete the multi-day soak test with no unresolved data-loss, corruption,
+  restart-consistency, privacy, or attribution defects.
+- Publish final limitations, migration notes, rollback instructions, and tested
+  automation examples.
+- Verify clean installation and upgrade from the latest beta on a supported
+  Home Assistant 2026.x release.
 
-- Complete a multi-day real-installation soak test.
-- Resolve all defects that can lose, corrupt, misattribute, or unexpectedly
-  expose stored data.
-- Freeze action names and response shapes for the stable release.
-- Publish final user documentation, automation examples, limitations, migration
-  notes, and rollback instructions.
-
-Exit condition: no known data-loss or restart-consistency defects, attribution
-limits are explicit, and both clean-install and upgrade tests pass on Home
-Assistant 2026.x.
+Completion gate: the public API is frozen, known attribution limits are clear,
+and no known defect can lose, corrupt, misattribute, or expose stored data.
 
 ## Later candidates
 
-These ideas are intentionally outside the first stable release unless beta
-testing proves they are necessary:
+These are intentionally outside the first stable release unless testing proves
+they are necessary:
 
 - optional register-change events;
-- configurable register count and value-size limits;
+- configurable register-count and value-size limits;
 - additional entity domains with explicit significance profiles;
-- diagnostic or maintenance actions for bulk namespace cleanup.
+- maintenance actions for bulk namespace cleanup.
 
 ## Working rules
 
-- Develop every change on a dedicated branch and merge it through a reviewed
-  pull request.
-- Keep completed work out of this file; record it in release notes and Git
-  history instead.
-- Update the relevant issue and this roadmap together when scope or priority
-  changes.
-- Do not publish a HACS update without a new named prerelease version.
-- Keep the manifest version, Git tag, GitHub prerelease, and release notes
-  identical for every published build.
+- Keep completed work out of this file.
+- Update the relevant issue and roadmap together when scope changes.
+- Normally develop changes on dedicated branches and merge reviewed pull
+  requests; direct commits require an explicit maintainer decision.
+- Never publish an unversioned default-branch build as a HACS update.
+- Keep manifest version, Git tag, GitHub release, and release notes identical.

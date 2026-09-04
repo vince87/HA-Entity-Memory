@@ -21,6 +21,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
@@ -35,11 +36,14 @@ from .const import (
     DEFAULT_WINDOW_HOURS,
     DOMAIN,
     IGNORED_STATES,
+    REGISTER_STORAGE_KEY,
+    REGISTER_STORAGE_VERSION,
     SIGNIFICANT_ATTRIBUTES,
 )
 from .correlation import IntentTracker
 from .models import EventOrigin, MemoryEvent
 from .recorder import async_restore_events
+from .registers import RegisterStore
 from .selection import known_entity_ids, parse_patterns, resolve_entities
 from .store import EventStore
 
@@ -51,6 +55,7 @@ class EntityMemoryRuntime:
     store: EventStore
     intents: IntentTracker
     entity_ids: set[str]
+    registers: RegisterStore
 
 
 type EntityMemoryConfigEntry = ConfigEntry[EntityMemoryRuntime]
@@ -67,6 +72,24 @@ QUERY_SCHEMA = vol.Schema(
         vol.Optional("since", default="12:00:00"): cv.time_period,
         vol.Optional("to_state"): cv.string,
         vol.Optional("origins"): vol.All(cv.ensure_list, [vol.Coerce(EventOrigin)]),
+        vol.Optional("limit", default=100): vol.All(
+            vol.Coerce(int), vol.Range(min=1, max=1000)
+        ),
+    }
+)
+
+REGISTER_KEY = vol.All(
+    cv.string,
+    vol.Length(min=1, max=128),
+    vol.Match(r"^[a-z0-9][a-z0-9_.-]*$"),
+)
+REGISTER_KEY_SCHEMA = vol.Schema({vol.Required("key"): REGISTER_KEY})
+REGISTER_VALUE_SCHEMA = vol.Schema(
+    {vol.Required("key"): REGISTER_KEY, vol.Required("value"): object}
+)
+REGISTER_LIST_SCHEMA = vol.Schema(
+    {
+        vol.Optional("prefix"): vol.All(cv.string, vol.Length(max=128)),
         vol.Optional("limit", default=100): vol.All(
             vol.Coerce(int), vol.Range(min=1, max=1000)
         ),
@@ -109,7 +132,11 @@ async def async_setup_entry(
     include_attributes = config.get(CONF_ATTRIBUTE_CHANGES, DEFAULT_ATTRIBUTE_CHANGES)
     store = EventStore(window)
     intents = IntentTracker()
-    entry.runtime_data = EntityMemoryRuntime(store, intents, entity_ids)
+    registers = RegisterStore(
+        Store(hass, REGISTER_STORAGE_VERSION, REGISTER_STORAGE_KEY)
+    )
+    await registers.async_load()
+    entry.runtime_data = EntityMemoryRuntime(store, intents, entity_ids, registers)
 
     async def _service_called(event: Event) -> None:
         intents.observe_call(event, entity_ids)
@@ -245,6 +272,29 @@ def _register_actions(hass: HomeAssistant) -> None:
         response = await query(call)
         return {"count": response["count"]}
 
+    async def get_register(call: ServiceCall) -> dict[str, Any]:
+        return _runtime().registers.get(call.data["key"])
+
+    async def set_register(call: ServiceCall) -> dict[str, Any]:
+        try:
+            return await _runtime().registers.async_set(
+                call.data["key"], call.data["value"]
+            )
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
+
+    async def compare_register(call: ServiceCall) -> dict[str, Any]:
+        try:
+            return _runtime().registers.compare(call.data["key"], call.data["value"])
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
+
+    async def delete_register(call: ServiceCall) -> dict[str, Any]:
+        return await _runtime().registers.async_delete(call.data["key"])
+
+    async def list_registers(call: ServiceCall) -> dict[str, Any]:
+        return _runtime().registers.list(call.data.get("prefix"), call.data["limit"])
+
     for name, handler in {
         "get_events": query,
         "last_event": last_event,
@@ -256,6 +306,21 @@ def _register_actions(hass: HomeAssistant) -> None:
             name,
             handler,
             schema=QUERY_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+    for name, handler, schema in (
+        ("get_register", get_register, REGISTER_KEY_SCHEMA),
+        ("set_register", set_register, REGISTER_VALUE_SCHEMA),
+        ("compare_register", compare_register, REGISTER_VALUE_SCHEMA),
+        ("delete_register", delete_register, REGISTER_KEY_SCHEMA),
+        ("list_registers", list_registers, REGISTER_LIST_SCHEMA),
+    ):
+        hass.services.async_register(
+            DOMAIN,
+            name,
+            handler,
+            schema=schema,
             supports_response=SupportsResponse.ONLY,
         )
 

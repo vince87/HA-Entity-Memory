@@ -82,6 +82,40 @@
         "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
         "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
       }
+    },
+    "get_register": {
+      "name": "Ottieni registro",
+      "description": "Restituisce un valore persistente per automazioni.",
+      "fields": {"key": {"name": "Chiave", "description": "Chiave del registro con namespace."}}
+    },
+    "set_register": {
+      "name": "Imposta registro",
+      "description": "Crea o sostituisce un valore persistente per automazioni.",
+      "fields": {
+        "key": {"name": "Chiave", "description": "Chiave del registro con namespace."},
+        "value": {"name": "Valore", "description": "Valore compatibile con JSON da memorizzare."}
+      }
+    },
+    "compare_register": {
+      "name": "Confronta registro",
+      "description": "Confronta un valore persistente senza modificarlo.",
+      "fields": {
+        "key": {"name": "Chiave", "description": "Chiave del registro con namespace."},
+        "value": {"name": "Valore", "description": "Valore compatibile con JSON da confrontare."}
+      }
+    },
+    "delete_register": {
+      "name": "Elimina registro",
+      "description": "Elimina un valore persistente per automazioni.",
+      "fields": {"key": {"name": "Chiave", "description": "Chiave del registro con namespace."}}
+    },
+    "list_registers": {
+      "name": "Elenca registri",
+      "description": "Restituisce i valori persistenti, filtrabili per prefisso.",
+      "fields": {
+        "prefix": {"name": "Prefisso chiave", "description": "Prefisso namespace facoltativo."},
+        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di registri da restituire."}
+      }
     }
   }
 }

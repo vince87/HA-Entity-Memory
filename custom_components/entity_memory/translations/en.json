@@ -82,6 +82,40 @@
         "origins": {"name": "Origins", "description": "Only return events with these origins."},
         "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
       }
+    },
+    "get_register": {
+      "name": "Get register",
+      "description": "Return one persistent automation value.",
+      "fields": {"key": {"name": "Key", "description": "Namespaced register key."}}
+    },
+    "set_register": {
+      "name": "Set register",
+      "description": "Create or replace a persistent automation value.",
+      "fields": {
+        "key": {"name": "Key", "description": "Namespaced register key."},
+        "value": {"name": "Value", "description": "JSON-compatible value to store."}
+      }
+    },
+    "compare_register": {
+      "name": "Compare register",
+      "description": "Compare a persistent value without changing it.",
+      "fields": {
+        "key": {"name": "Key", "description": "Namespaced register key."},
+        "value": {"name": "Value", "description": "JSON-compatible value to compare."}
+      }
+    },
+    "delete_register": {
+      "name": "Delete register",
+      "description": "Delete one persistent automation value.",
+      "fields": {"key": {"name": "Key", "description": "Namespaced register key."}}
+    },
+    "list_registers": {
+      "name": "List registers",
+      "description": "Return persistent values, optionally filtered by prefix.",
+      "fields": {
+        "prefix": {"name": "Key prefix", "description": "Optional namespace prefix."},
+        "limit": {"name": "Maximum results", "description": "Maximum number of registers to return."}
+      }
     }
   }
 }

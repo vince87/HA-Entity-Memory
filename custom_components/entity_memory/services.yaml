@@ -51,3 +51,59 @@ count_events:
   name: Count events
   description: Count matching events in the requested period.
   fields: *query_fields
+
+get_register:
+  name: Get register
+  description: Return one persistent value without creating a Home Assistant entity.
+  fields: &register_key_fields
+    key:
+      name: Key
+      required: true
+      example: "shutters.west_floor_1"
+      selector:
+        text:
+
+set_register:
+  name: Set register
+  description: Create or replace a persistent JSON-compatible value.
+  fields:
+    <<: *register_key_fields
+    value:
+      name: Value
+      required: true
+      selector:
+        object:
+
+compare_register:
+  name: Compare register
+  description: Compare a persistent value without changing it.
+  fields:
+    <<: *register_key_fields
+    value:
+      name: Value
+      required: true
+      selector:
+        object:
+
+delete_register:
+  name: Delete register
+  description: Delete one persistent value.
+  fields: *register_key_fields
+
+list_registers:
+  name: List registers
+  description: Return persistent values, optionally filtered by key prefix.
+  fields:
+    prefix:
+      name: Key prefix
+      example: "shutters."
+      selector:
+        text:
+    limit:
+      name: Maximum results
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box

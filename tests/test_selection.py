@@ -49,3 +49,16 @@ def test_resolve_entities_has_no_artificial_entity_limit() -> None:
     available = [f"light.test_{number}" for number in range(75)]
 
     assert len(resolve_entities([], ["light.*"], available)) == 75
+
+
+def test_wildcard_resolution_tracks_create_rename_and_remove() -> None:
+    pattern = ["cover.west_*"]
+
+    assert resolve_entities([], pattern, ["cover.east_one"]) == set()
+    assert resolve_entities([], pattern, ["cover.east_one", "cover.west_one"]) == {
+        "cover.west_one"
+    }
+    assert resolve_entities([], pattern, ["cover.east_one", "cover.west_renamed"]) == {
+        "cover.west_renamed"
+    }
+    assert resolve_entities([], pattern, ["cover.east_one"]) == set()

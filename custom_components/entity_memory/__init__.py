@@ -145,6 +145,13 @@ def _is_significant(old_state, new_state, include_attributes: bool) -> bool:
     )
 
 
+def _should_ignore_transition(old_state, new_state, ignore_unavailable: bool) -> bool:
+    """Return whether an unavailable/unknown boundary must be skipped."""
+    return ignore_unavailable and (
+        new_state.state in IGNORED_STATES or old_state.state in IGNORED_STATES
+    )
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: EntityMemoryConfigEntry
 ) -> bool:
@@ -178,10 +185,7 @@ async def async_setup_entry(
         new_state = event.data.get("new_state")
         if old_state is None or new_state is None:
             return
-        if ignore_unavailable and (
-            new_state.state in IGNORED_STATES
-            or (old_state is not None and old_state.state in IGNORED_STATES)
-        ):
+        if _should_ignore_transition(old_state, new_state, ignore_unavailable):
             return
         if not _is_significant(old_state, new_state, include_attributes):
             return

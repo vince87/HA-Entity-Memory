@@ -1,3 +1,18 @@
+# 0.2.0-beta.3
+
+Release candidate for the single final Home Assistant validation pass.
+
+- Added automated live-capture coverage for every supported domain,
+  significant attributes, wildcard membership, and symmetric
+  unknown/unavailable filtering.
+- Froze the conservative 1.0 origin and confidence vocabularies and their
+  serialized response values.
+- Added the stable-release checklist and complete automation-pattern examples.
+- Updated the operational and AI manuals for persistent registers, attribution,
+  recovery, and release validation.
+- Confirmed repository-local brand images for Home Assistant 2026.3 and later.
+- Passed Ruff, pytest, Hassfest, and HACS validation on Home Assistant 2026.8.3.
+
 # 0.2.0-beta.2
 
 Corrective beta containing the complete register hardening work.

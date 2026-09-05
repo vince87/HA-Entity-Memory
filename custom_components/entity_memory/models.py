@@ -22,6 +22,14 @@ class EventOrigin(StrEnum):
     UNKNOWN = "unknown"
 
 
+class EventConfidence(StrEnum):
+    """Stable public attribution-confidence vocabulary."""
+
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
 def classify_origin(context: Context) -> EventOrigin:
     """Classify an event from Home Assistant context metadata."""
     if context.parent_id:
@@ -53,7 +61,7 @@ class MemoryEvent:
     old_attributes: dict[str, Any] = field(default_factory=dict)
     new_attributes: dict[str, Any] = field(default_factory=dict)
     changes: dict[str, dict[str, Any]] = field(default_factory=dict)
-    confidence: str = "low"
+    confidence: EventConfidence = EventConfidence.LOW
     matched_service: str | None = None
 
     @classmethod
@@ -87,14 +95,18 @@ class MemoryEvent:
             old_attributes=old_attributes,
             new_attributes=new_attributes,
             changes=changes,
-            confidence="high" if origin is not EventOrigin.UNKNOWN else "low",
+            confidence=(
+                EventConfidence.HIGH
+                if origin is not EventOrigin.UNKNOWN
+                else EventConfidence.LOW
+            ),
         )
 
     def attributed(
         self,
         *,
         origin: EventOrigin,
-        confidence: str,
+        confidence: EventConfidence,
         context_id: str | None = None,
         parent_id: str | None = None,
         user_id: str | None = None,
@@ -116,4 +128,5 @@ class MemoryEvent:
         value = asdict(self)
         value["timestamp"] = self.timestamp.isoformat()
         value["origin"] = self.origin.value
+        value["confidence"] = self.confidence.value
         return value

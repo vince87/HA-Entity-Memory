@@ -16,6 +16,9 @@ installation evidence without publishing household identifiers.
 
 ## HACS distribution gate
 
+- Repository-local brand assets are present at the supported 256 px and 512 px
+  sizes. Home Assistant 2026.3 and later serve them through the local Brands
+  Proxy API; no upstream Brands submission is required.
 - A clean install of the named release succeeds.
 - Upgrade from `0.2.0-beta.2` preserves the config entry and registers.
 - HACS and Home Assistant display the semantic version, not a commit hash.

@@ -41,7 +41,7 @@ from .const import (
     SIGNIFICANT_ATTRIBUTES,
 )
 from .correlation import IntentTracker
-from .models import EventOrigin, MemoryEvent
+from .models import EventConfidence, EventOrigin, MemoryEvent
 from .recorder import async_restore_events
 from .registers import RegisterStore
 from .selection import known_entity_ids, parse_patterns, resolve_entities
@@ -193,7 +193,7 @@ async def async_setup_entry(
         if intent := intents.match(memory_event):
             memory_event = memory_event.attributed(
                 origin=intent.origin,
-                confidence="high",
+                confidence=EventConfidence.HIGH,
                 context_id=intent.context_id,
                 parent_id=intent.parent_id,
                 user_id=intent.user_id,
@@ -207,7 +207,11 @@ async def async_setup_entry(
                     if domain == "binary_sensor"
                     else EventOrigin.EXTERNAL_OR_PHYSICAL
                 ),
-                confidence="high" if domain == "binary_sensor" else "medium",
+                confidence=(
+                    EventConfidence.HIGH
+                    if domain == "binary_sensor"
+                    else EventConfidence.MEDIUM
+                ),
             )
         store.add(memory_event, dt_util.utcnow())
 

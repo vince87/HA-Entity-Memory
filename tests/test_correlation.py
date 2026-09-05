@@ -5,7 +5,12 @@ from datetime import UTC, datetime, timedelta
 from homeassistant.core import Context, Event
 
 from custom_components.entity_memory.correlation import IntentTracker
-from custom_components.entity_memory.models import EventOrigin, MemoryEvent
+from custom_components.entity_memory.models import (
+    EventConfidence,
+    EventOrigin,
+    MemoryEvent,
+    classify_origin,
+)
 
 ENTITY_ID = "climate.living_room"
 NOW = datetime(2026, 9, 2, 16, 20, tzinfo=UTC)
@@ -36,6 +41,36 @@ def _change(temperature: int, timestamp: datetime) -> MemoryEvent:
         origin=EventOrigin.UNKNOWN,
         new_attributes={"temperature": temperature},
     )
+
+
+def test_origin_vocabulary_and_context_classification_are_frozen() -> None:
+    assert [origin.value for origin in EventOrigin] == [
+        "automation",
+        "authenticated_command",
+        "external_or_physical",
+        "device_observation",
+        "unknown",
+    ]
+    assert [confidence.value for confidence in EventConfidence] == [
+        "high",
+        "medium",
+        "low",
+    ]
+    assert classify_origin(Context(parent_id="parent")) is EventOrigin.AUTOMATION
+    assert classify_origin(Context(user_id="user")) is EventOrigin.AUTHENTICATED_COMMAND
+    assert classify_origin(Context()) is EventOrigin.UNKNOWN
+
+
+def test_serialized_attribution_uses_public_string_values() -> None:
+    event = _change(24, NOW).attributed(
+        origin=EventOrigin.EXTERNAL_OR_PHYSICAL,
+        confidence=EventConfidence.MEDIUM,
+    )
+
+    serialized = event.as_dict()
+
+    assert serialized["origin"] == "external_or_physical"
+    assert serialized["confidence"] == "medium"
 
 
 def test_matches_automation_by_requested_value() -> None:

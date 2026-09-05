@@ -1,7 +1,9 @@
 # Entity Memory guide for automation assistants
 
+**English** · [Italiano](AI_AUTOMATION_GUIDE.it.md)
+
 This document is the machine-readable usage contract for Entity Memory
-`0.2.0-beta.2`. An AI assistant generating Home Assistant automations should
+`0.2.0`. An AI assistant generating Home Assistant automations should
 follow these rules and must not infer more attribution certainty than the
 returned data provides.
 

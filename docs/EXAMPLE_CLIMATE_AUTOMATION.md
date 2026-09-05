@@ -1,5 +1,7 @@
 # Example: respect a recent manual climate decision
 
+**English** · [Italiano](EXAMPLE_CLIMATE_AUTOMATION.it.md)
+
 This example shows how an automation can use Entity Memory before cooling a
 room. When the temperature rises above 27 °C, it checks the most recent event
 for an imaginary climate entity. It does not turn the unit back on when the

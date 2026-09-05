@@ -1,3 +1,34 @@
+# 0.2.0
+
+First stable Entity Memory release.
+
+- Recorder-backed event memory for lights, covers, climate devices, switches,
+  and binary sensors with conservative origin attribution.
+- Invisible persistent registers with revisions, optimistic concurrency,
+  bounded JSON values, and restart-safe storage.
+- Privacy-safe diagnostics, wildcard selection, UI configuration, and six
+  interface languages.
+- Redesigned HACS-style README and complete English/Italian manuals.
+- Ruff, pytest, Hassfest, HACS validation, and live checks passed on the
+  reference Home Assistant 2026.8.3 installation.
+
+No migration is required from `0.2.0-beta.3`.
+
+## Italiano
+
+Prima release stabile di Entity Memory.
+
+- Memoria eventi tramite Recorder per luci, tapparelle, climatizzatori,
+  interruttori e sensori binari, con attribuzione prudente dell’origine.
+- Registri persistenti invisibili con revisioni, concorrenza ottimistica,
+  valori JSON limitati e salvataggio resistente ai riavvii.
+- Diagnostica rispettosa della privacy, selezioni wildcard, configurazione UI e
+  sei lingue per l’interfaccia.
+- README rinnovato in stile HACS e manuali completi in inglese e italiano.
+- Controlli Ruff, pytest, Hassfest, HACS e prove reali su Home Assistant 2026.8.3.
+
+Non serve alcuna migrazione da `0.2.0-beta.3`.
+
 # 0.2.0-beta.3
 
 Release candidate for the single final Home Assistant validation pass.

@@ -87,6 +87,11 @@ owned by real automations.
 
 ## Live capture and attribution
 
+The public vocabulary is frozen for 1.0: origins are `automation`,
+`authenticated_command`, `external_or_physical`, `device_observation`, and
+`unknown`; confidence values are `high`, `medium`, and `low`. Treat any other
+value as a compatibility defect.
+
 For every supported domain, create a real state change and verify that exactly
 one meaningful event appears. Then verify these specific cases:
 

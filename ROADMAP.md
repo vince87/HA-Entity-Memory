@@ -15,9 +15,12 @@ Supported entity domains are `light`, `cover`, `climate`, `switch`, and
 `binary_sensor`. CI covers Python 3.14, Home Assistant 2026.8.3, Ruff, pytest,
 Hassfest, and HACS validation.
 
-## Now — close the beta validation gaps
+## Now — complete real-installation validation
 
-These checks decide whether another code change is required.
+Tracked in [#19](https://github.com/vince87/HA-Entity-Memory/issues/19).
+Automated coverage already exercises wildcard membership changes, all supported
+domains, significant attributes, and symmetric outage/recovery filtering. The
+remaining checks require a real Home Assistant installation.
 
 - Verify wildcard selections after an entity is created, renamed, and removed.
 - Verify configured handling of `unknown` and `unavailable`, including recovery
@@ -35,40 +38,10 @@ These checks decide whether another code change is required.
 Completion gate: every scenario passes on the reference installation or has a
 small reproducible issue describing the failure.
 
-## Next — freeze the public contract
+## Then — publish the first stable release
 
-- Review issues [#1](https://github.com/vince87/HA-Entity-Memory/issues/1),
-  [#2](https://github.com/vince87/HA-Entity-Memory/issues/2),
-  [#3](https://github.com/vince87/HA-Entity-Memory/issues/3), and
-  [#6](https://github.com/vince87/HA-Entity-Memory/issues/6); close criteria
-  already satisfied and move any real remainder into focused issues.
-- Finish the attribution decisions tracked in
-  [#4](https://github.com/vince87/HA-Entity-Memory/issues/4), keeping ambiguous
-  physical and external changes explicitly uncertain.
-- Freeze action names, input validation, response fields, timestamp format, and
-  documented error behavior for the first stable release.
-- Ensure the automation guide and examples match the tested contract exactly.
-- Keep safety interlocks outside Entity Memory's responsibility and state this
-  boundary consistently in user documentation.
-
-Completion gate: every open issue represents unfinished work, and automation
-authors can rely on one documented, tested contract.
-
-## Next prerelease
-
-Create another beta only when validation or contract work produces a meaningful
-change.
-
-- Resolve the HACS catalog icon delivery gap.
-- Document clean installation, upgrade, rollback, and register cleanup.
-- Keep `manifest.json`, Git tag, GitHub prerelease, and release notes on the same
-  version.
-- Repeat HACS clean-install and upgrade checks for the release candidate.
-
-Completion gate: the named prerelease installs through HACS, passes all CI, and
-reproduces the reference-installation results.
-
-## First stable release
+Tracked in [#18](https://github.com/vince87/HA-Entity-Memory/issues/18) and
+gated by [`docs/STABLE_RELEASE_CHECKLIST.md`](docs/STABLE_RELEASE_CHECKLIST.md).
 
 - Complete the multi-day soak test with no unresolved data-loss, corruption,
   restart-consistency, privacy, or attribution defects.
@@ -76,6 +49,8 @@ reproduces the reference-installation results.
   automation examples.
 - Verify clean installation and upgrade from the latest beta on a supported
   Home Assistant 2026.x release.
+- Set `manifest.json`, Git tag, GitHub release, and release notes to `1.0.0`
+  only on the exact commit that passed the complete validation matrix.
 
 Completion gate: the public API is frozen, known attribution limits are clear,
 and no known defect can lose, corrupt, misattribute, or expose stored data.

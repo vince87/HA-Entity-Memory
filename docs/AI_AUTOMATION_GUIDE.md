@@ -297,6 +297,8 @@ then use memory only when choosing among actions still allowed by it.
 
 The complete climate example is in
 [`EXAMPLE_CLIMATE_AUTOMATION.md`](EXAMPLE_CLIMATE_AUTOMATION.md).
+Additional cover, light, door, PIR, and multi-entity patterns are in
+[`AUTOMATION_PATTERNS.md`](AUTOMATION_PATTERNS.md).
 
 ## Template guidance
 

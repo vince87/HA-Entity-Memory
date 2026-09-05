@@ -242,7 +242,9 @@ database excerpts in public issues without anonymizing them.
 
 - [Persistent register reference](docs/PERSISTENT_REGISTERS.md)
 - [Automation-assistant guide and generation contract](docs/AI_AUTOMATION_GUIDE.md)
+- [Automation patterns for covers, lights, doors, and PIR](docs/AUTOMATION_PATTERNS.md)
 - [Controlled-test plan](docs/CONTROLLED_TEST_PLAN.md)
+- [Stable-release checklist](docs/STABLE_RELEASE_CHECKLIST.md)
 - [Reference environment](docs/REFERENCE_ENVIRONMENT.md)
 - [Roadmap](ROADMAP.md)
 - [Release notes](RELEASE_NOTES.md)

@@ -10,7 +10,7 @@ from homeassistant.components.recorder import get_instance, history
 from homeassistant.core import HomeAssistant, State
 
 from .const import IGNORED_STATES, SIGNIFICANT_ATTRIBUTES
-from .models import EventOrigin, MemoryEvent
+from .models import EventConfidence, EventOrigin, MemoryEvent
 
 
 def _restored_events(
@@ -45,7 +45,7 @@ def _restored_events(
                 event = replace(
                     MemoryEvent.from_states(old_state, new_state),
                     origin=EventOrigin.UNKNOWN,
-                    confidence="low",
+                    confidence=EventConfidence.LOW,
                     context_id=None,
                     parent_id=None,
                     user_id=None,

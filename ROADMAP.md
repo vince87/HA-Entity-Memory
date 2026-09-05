@@ -38,32 +38,7 @@ remaining checks require a real Home Assistant installation.
 Completion gate: every scenario passes on the reference installation or has a
 small reproducible issue describing the failure.
 
-## Next — freeze attribution
-
-- Complete the real attribution matrix tracked in
-  [#4](https://github.com/vince87/HA-Entity-Memory/issues/4).
-- Keep ambiguous physical and external changes explicitly uncertain.
-- Freeze action names, input validation, response fields, timestamp format, and
-  documented error behavior for the first stable release.
-
-Completion gate: every open issue represents unfinished work, and automation
-authors can rely on one documented, tested contract.
-
-## Next prerelease
-
-Create another beta only when validation or contract work produces a meaningful
-change.
-
-- Resolve the HACS catalog icon delivery gap tracked in
-  [#17](https://github.com/vince87/HA-Entity-Memory/issues/17).
-- Keep `manifest.json`, Git tag, GitHub prerelease, and release notes on the same
-  version.
-- Repeat HACS clean-install and upgrade checks for the release candidate.
-
-Completion gate: the named prerelease installs through HACS, passes all CI, and
-reproduces the reference-installation results.
-
-## First stable release
+## Then — publish the first stable release
 
 Tracked in [#18](https://github.com/vince87/HA-Entity-Memory/issues/18) and
 gated by [`docs/STABLE_RELEASE_CHECKLIST.md`](docs/STABLE_RELEASE_CHECKLIST.md).
@@ -74,6 +49,8 @@ gated by [`docs/STABLE_RELEASE_CHECKLIST.md`](docs/STABLE_RELEASE_CHECKLIST.md).
   automation examples.
 - Verify clean installation and upgrade from the latest beta on a supported
   Home Assistant 2026.x release.
+- Set `manifest.json`, Git tag, GitHub release, and release notes to `1.0.0`
+  only on the exact commit that passed the complete validation matrix.
 
 Completion gate: the public API is frozen, known attribution limits are clear,
 and no known defect can lose, corrupt, misattribute, or expose stored data.

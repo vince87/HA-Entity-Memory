@@ -1,5 +1,7 @@
 # Persistent registers
 
+**English** · [Italiano](PERSISTENT_REGISTERS.it.md)
+
 Persistent registers let automations keep small JSON-compatible values without
 creating helper entities. They are independent from the rolling entity-event
 history and survive Home Assistant restarts.

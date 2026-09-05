@@ -1,5 +1,7 @@
 # Automation patterns
 
+**English** · [Italiano](AUTOMATION_PATTERNS.it.md)
+
 These anonymized fragments demonstrate Entity Memory query contracts. Replace
 every placeholder entity and tune the look-back window for the installation.
 They are decision patterns, not safety controls.

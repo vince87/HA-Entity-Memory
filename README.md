@@ -1,61 +1,59 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/vince87/HA-Entity-Memory/main/custom_components/entity_memory/brand/icon%402x.png" alt="Entity Memory icon" width="220" height="220">
+  <img src="https://raw.githubusercontent.com/vince87/HA-Entity-Memory/main/custom_components/entity_memory/brand/icon%402x.png" alt="Entity Memory" width="180">
 </p>
 
-# Entity Memory
+<h1 align="center">Entity Memory</h1>
 
-Entity Memory gives Home Assistant automations two complementary kinds of
-memory without requiring database templates or visible helper entities:
+<p align="center">Persistent, privacy-conscious memory for Home Assistant automations.</p>
 
-1. **Entity-event memory** remembers meaningful recent changes and their best
-   available origin attribution.
-2. **Persistent registers** store small automation-owned values such as phases,
-   checkpoints, flags, and last-applied policies.
+<p align="center">
+  <a href="https://github.com/vince87/HA-Entity-Memory/releases"><img alt="Release" src="https://img.shields.io/github/v/release/vince87/HA-Entity-Memory?style=flat-square"></a>
+  <a href="https://github.com/vince87/HA-Entity-Memory/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/vince87/HA-Entity-Memory/validate.yml?branch=main&style=flat-square&label=validation"></a>
+  <a href="https://www.hacs.xyz/"><img alt="HACS" src="https://img.shields.io/badge/HACS-Custom-41BDF5?style=flat-square"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/vince87/HA-Entity-Memory?style=flat-square"></a>
+</p>
+
+<p align="center"><strong>English</strong> · <a href="README.it.md">Italiano</a></p>
+
+Entity Memory adds two kinds of memory without creating visible helper entities:
+
+- **Event memory** retains meaningful recent changes to lights, covers, climate devices, switches, and binary sensors, with conservative origin attribution.
+- **Persistent registers** retain small automation-owned values, flags, phases, and checkpoints across reloads and restarts.
+
+It answers questions such as “was this device recently changed outside my automation?” and “is this still the same calculated program phase?”.
 
 > [!IMPORTANT]
-> This project is a beta. Entity Memory is a decision aid, not a safety system.
-> Keep alarms, locks, weather protection, and other safety interlocks in normal
-> Home Assistant conditions.
+> Entity Memory is a decision aid, not a safety system. Alarms, locks, fire, rain, wind, frost, and other safety interlocks must remain ordinary Home Assistant conditions and always take precedence over remembered preferences.
 
-## Requirements and scope
+## Highlights
 
-- Current prerelease: `0.2.0-beta.2`
-- Home Assistant 2026.x
-- Recorder enabled for entity-event restoration
-- One configuration entry
-- Supported event domains: `light`, `cover`, `climate`, `switch`, and
-  `binary_sensor`
-- English, Italian, German, French, Spanish, and Portuguese interface text
+- Home Assistant UI configuration
+- Explicit entities and wildcard patterns such as `cover.*`
+- Recorder-backed restoration after restart
+- Conservative origin attribution and confidence
+- Response actions designed for automations
+- Entity-less JSON registers with revisions and optimistic concurrency
+- Privacy-safe aggregate diagnostics
+- Interface translations in English, Italian, German, French, Spanish, and Portuguese
 
 ## Installation
 
 ### HACS
 
-1. Add `https://github.com/vince87/HA-Entity-Memory` as a custom **Integration**
-   repository in HACS.
-2. Enable prereleases and install the latest named version, currently
-   `0.2.0-beta.2`.
+1. Add `https://github.com/vince87/HA-Entity-Memory` as a custom **Integration** repository in HACS.
+2. Download the latest stable release.
 3. Restart Home Assistant.
-4. Open **Settings → Devices & services → Add integration** and select
-   **Entity Memory**.
-
-Use named prereleases for testing. Installing a branch or pull-request build
-makes HACS display commit hashes instead of semantic versions. To return to the
-normal release channel, use **Redownload**, explicitly select the named version,
-and restart Home Assistant.
+4. Open **Settings → Devices & services → Add integration** and select **Entity Memory**.
 
 ### Manual
 
-Copy `custom_components/entity_memory` into
-`/config/custom_components/entity_memory`, restart Home Assistant, and add the
-integration from **Settings → Devices & services**.
+Copy `custom_components/entity_memory` to `/config/custom_components/entity_memory`, restart Home Assistant, and add the integration from **Settings → Devices & services**.
 
-## Configuration
+Requires Home Assistant `2026.1.0` or newer. Recorder is required to restore event history after startup.
 
-Select concrete entities, wildcard patterns, or both. Patterns are resolved
-against the entity registry and current states.
+## Quick start
 
-Examples:
+Choose concrete entities, wildcard patterns, or both. Prefer the narrowest useful selection.
 
 ```text
 light.kitchen
@@ -63,192 +61,67 @@ cover.*
 binary_sensor.*_window
 ```
 
-Prefer the narrowest selection that covers the automation. Broad patterns
-increase live listeners, memory use, and Recorder work.
-
-Options control:
-
-- the rolling event window;
-- whether `unknown` and `unavailable` transitions are ignored;
-- whether meaningful domain-specific attribute changes are retained.
-
-## Entity-event memory
-
-The event cache is bounded by the configured window. At startup it is restored
-from Recorder, then updated from live Home Assistant state changes.
-
-Available actions:
-
-- `entity_memory.get_events`
-- `entity_memory.last_event`
-- `entity_memory.was_changed`
-- `entity_memory.count_events`
-
-All actions return response data and should normally use `response_variable`:
+Query whether a relevant recent change exists:
 
 ```yaml
 - action: entity_memory.was_changed
   data:
     entity_id:
-      - climate.living_room
-    since: "02:00:00"
-    to_state: "off"
+      - light.kitchen
+    since: "00:30:00"
     origins:
       - authenticated_command
       - external_or_physical
+      - unknown
   response_variable: memory
 
 - condition: template
   value_template: "{{ not memory.found }}"
 ```
 
-### Origin attribution
-
-Reported origins are deliberately conservative:
-
-- `automation`: attributed through Home Assistant automation context;
-- `authenticated_command`: associated with a Home Assistant user, but not
-  necessarily a particular dashboard, app, or voice bridge;
-- `external_or_physical`: no matching Home Assistant command was observed;
-- `device_observation`: an observed sensor change;
-- `unknown`: insufficient attribution data, especially after Recorder restore.
-
-Confidence describes attribution certainty, not device-state accuracy. Do not
-infer a person, client, or vendor from timing alone.
-
-## Persistent registers
-
-Registers are stored separately from Recorder and never appear as Home Assistant
-entities. They survive restarts and integration reloads.
-
-Available actions:
-
-- `entity_memory.get_register`
-- `entity_memory.set_register`
-- `entity_memory.compare_register`
-- `entity_memory.delete_register`
-- `entity_memory.list_registers`
-
-Create or update a value:
+Remember an automation phase across runs and restarts:
 
 ```yaml
 - action: entity_memory.set_register
   data:
-    key: shutters.west_floor_1
-    value:
-      phase: shade
-      enabled: true
+    key: shutters.west.phase
+    value: shade
   response_variable: saved
 ```
 
-Read it later, including after a restart:
+## Available actions
 
-```yaml
-- action: entity_memory.get_register
-  data:
-    key: shutters.west_floor_1
-  response_variable: register
-```
+| Event memory | Persistent registers |
+|---|---|
+| `get_events` | `get_register` |
+| `last_event` | `set_register` |
+| `was_changed` | `compare_register` |
+| `count_events` | `delete_register` |
+| | `list_registers` |
 
-The response includes `found`, `value`, `revision`, and `updated_at`. Rewriting
-the same value is a no-op and preserves its revision and timestamp.
-
-### Safe concurrent updates
-
-Pass `expected_revision` when multiple executions may update the same key:
-
-```yaml
-- action: entity_memory.set_register
-  data:
-    key: shutters.west_floor_1
-    value: open
-    expected_revision: "{{ register.revision }}"
-  response_variable: result
-```
-
-Revision `0` means the key must not exist. If the current revision differs, the
-write is rejected, `result.conflict` is `true`, and the existing value remains
-untouched. Omitting `expected_revision` keeps the simple unconditional behavior.
-
-### Limits
-
-- Lowercase keys, maximum 128 characters
-- Letters, numbers, dots, underscores, and hyphens in keys
-- JSON-compatible values only
-- Maximum encoded value size: 16 KiB
-- Maximum registers per installation: 256
-
-Do not store passwords, tokens, personal data, large documents, or high-frequency
-telemetry in registers.
-
-## Recommended automation workflow
-
-For periodically calculated policies:
-
-1. Calculate the current policy.
-2. Read its register.
-3. Treat a missing or different value as a new program phase.
-4. Apply the device action.
-5. Save the policy only after the device action succeeds.
-6. When the policy has not changed, consult entity-event memory before
-   overriding a recent non-automation choice.
-
-A missing register is initialization, not proof of a physical change. Decide
-explicitly whether the first run should apply the calculated state or only save
-it.
-
-## Upgrading and rollback
-
-Before testing a prerelease, back up the Home Assistant configuration. Existing
-config entries remain compatible unless release notes say otherwise.
-
-Rolling back the integration does not automatically delete registers. Older
-versions simply ignore their storage. Use `delete_register` when a value should
-be intentionally removed.
-
-After an upgrade, verify the semantic version under **Settings → Devices &
-services → Entity Memory**. A commit hash means HACS is still following a branch
-build rather than a named release.
-
-## Diagnostics
-
-Open **Settings → Devices & services → Entity Memory**, open the menu for the
-configured entry, and choose **Download diagnostics**. The report contains only
-aggregate counts, encoded register value sizes, storage limits, and the storage
-format version. It excludes tracked entity IDs, register keys, register values,
-user IDs, and context IDs.
-
-Attach diagnostics to a bug report only after reviewing the downloaded file.
-Logs and automation traces are separate artifacts and may contain household
-identifiers, so sanitize them before sharing.
-
-## Troubleshooting
-
-- Integration missing: confirm
-  `/config/custom_components/entity_memory/manifest.json` exists and restart.
-- Actions report that Entity Memory is unavailable: confirm the config entry is
-  loaded under **Settings → Devices & services**.
-- No restored events: confirm Recorder contains the selected entities inside the
-  configured window.
-- Raw translation keys: update the integration, restart Home Assistant, and
-  refresh the browser cache.
-- Register conflict: read the returned current revision, recalculate the desired
-  change, and retry only if it is still appropriate.
-
-Never publish entity IDs, user IDs, context IDs, tokens, register contents, or
-database excerpts in public issues without anonymizing them.
+All actions return response data and should normally use `response_variable`.
 
 ## Documentation
 
-- [Persistent register reference](docs/PERSISTENT_REGISTERS.md)
-- [Automation-assistant guide and generation contract](docs/AI_AUTOMATION_GUIDE.md)
-- [Automation patterns for covers, lights, doors, and PIR](docs/AUTOMATION_PATTERNS.md)
-- [Controlled-test plan](docs/CONTROLLED_TEST_PLAN.md)
-- [Stable-release checklist](docs/STABLE_RELEASE_CHECKLIST.md)
-- [Reference environment](docs/REFERENCE_ENVIRONMENT.md)
-- [Roadmap](ROADMAP.md)
-- [Release notes](RELEASE_NOTES.md)
+| English | Italiano |
+|---|---|
+| [AI automation guide](docs/AI_AUTOMATION_GUIDE.md) | [Guida per automazioni IA](docs/AI_AUTOMATION_GUIDE.it.md) |
+| [Persistent registers](docs/PERSISTENT_REGISTERS.md) | [Registri persistenti](docs/PERSISTENT_REGISTERS.it.md) |
+| [Automation patterns](docs/AUTOMATION_PATTERNS.md) | [Schemi di automazione](docs/AUTOMATION_PATTERNS.it.md) |
+| [Climate example](docs/EXAMPLE_CLIMATE_AUTOMATION.md) | [Esempio climatizzazione](docs/EXAMPLE_CLIMATE_AUTOMATION.it.md) |
+
+See [release notes](RELEASE_NOTES.md) for changes and compatibility information.
+
+## Attribution limits
+
+Attribution is intentionally conservative. `authenticated_command` proves that Home Assistant associated a command with a user, not whether it came from a dashboard, app, or voice bridge. `external_or_physical` can also mean an external integration. Recorder-restored events may be `unknown` with low confidence.
+
+## Privacy and support
+
+Diagnostics exclude entity IDs, register keys and values, user IDs, and context IDs. General logs and automation traces should still be sanitized before sharing.
+
+When reporting a problem, include the Entity Memory version, Home Assistant version, anonymized steps, and reviewed diagnostics in the [issue tracker](https://github.com/vince87/HA-Entity-Memory/issues).
 
 ## License
 
-MIT
+[MIT](LICENSE)

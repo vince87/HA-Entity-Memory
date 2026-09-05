@@ -68,7 +68,9 @@ owned by real automations.
    Confirm its value, revision, and timestamp remain unchanged.
 8. Confirm negative revisions, booleans, fractional numbers, non-numeric
    strings, invalid keys, non-JSON values, oversized values, and count overflow
-   fail without changing existing data.
+   fail without changing existing data. Quote integral decimals such as `'1.0'`
+   so the Home Assistant YAML editor cannot normalize them to integers before
+   the service call.
 9. Remove every disposable test key after recording the results.
 
 ## Diagnostics and lifecycle checks

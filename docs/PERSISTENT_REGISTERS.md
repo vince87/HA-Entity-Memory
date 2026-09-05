@@ -72,6 +72,13 @@ If another execution changed the register after it was read, no write occurs and
 the response contains `conflict: true` together with the current value and
 revision. A successful or unconditional write returns `conflict: false`.
 
+`expected_revision` accepts a non-negative integer or a string containing only
+digits. The service rejects booleans, negative values, fractional numbers, and
+other strings. Home Assistant's action editor may normalize an integral YAML
+number such as `2.0` to the integer `2` before calling the service; once that
+happens the original decimal notation is unavailable to Entity Memory. Quote a
+value such as `'2.0'` when explicitly testing rejection of decimal input.
+
 Valid values include strings, booleans, numbers, null, lists, and objects made
 from those types. Non-JSON objects, non-finite numbers, and oversized values are
 rejected.

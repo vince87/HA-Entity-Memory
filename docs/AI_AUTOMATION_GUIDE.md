@@ -228,6 +228,11 @@ booleans, negative values, fractional numbers (including `1.0`), and non-numeric
 strings. `compare_register` accepts only `key` and `value`; do not pass
 `expected_revision` to it.
 
+Home Assistant's YAML action editor can normalize an integral decimal such as
+`1.0` to the integer `1` before service validation. Entity Memory cannot recover
+notation removed by the caller. Quote `'1.0'` when a decimal must reach the
+service unchanged; it will then be rejected as documented.
+
 See [`PERSISTENT_REGISTERS.md`](PERSISTENT_REGISTERS.md) for exact response
 shapes, persistence behavior, limits, and additional examples.
 

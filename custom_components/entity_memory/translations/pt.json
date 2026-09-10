@@ -1,12 +1,14 @@
 {
   "title": "Entity Memory",
   "config": {
-    "step": {"user": {"title": "Configurar o Entity Memory", "description": "Selecione entidades individuais ou utilize padrões universais. Padrões muito amplos podem aumentar o uso de memória e a carga do Recorder.", "data": {"entities": "Entidades", "entity_patterns": "Padrões de entidades (um por linha)", "window_hours": "Janela de memória (horas)", "ignore_unavailable": "Ignorar estados indisponíveis e desconhecidos", "attribute_changes": "Registar alterações significativas de atributos"}}},
+    "step": {"user": {"title": "Configurar o Entity Memory", "description": "Selecione entidades individuais ou utilize padrões universais. Padrões muito amplos podem aumentar o uso de memória e a carga do Recorder.", "data": {"entities": "Entidades", "exclude_patterns": "Padrões excluídos",
+          "entity_patterns": "Padrões de entidades (um por linha)", "window_hours": "Janela de memória (horas)", "ignore_unavailable": "Ignorar estados indisponíveis e desconhecidos", "attribute_changes": "Registar alterações significativas de atributos"}}},
     "error": {"invalid_entity_patterns": "Utilize padrões completos com um domínio suportado, por exemplo light.*.", "no_matching_entities": "Selecione pelo menos uma entidade ou introduza um padrão."},
     "abort": {"single_instance_allowed": "O Entity Memory já está configurado."}
   },
   "options": {
-    "step": {"init": {"title": "Opções do Entity Memory", "data": {"entities": "Entidades", "entity_patterns": "Padrões de entidades (um por linha)", "window_hours": "Janela de memória (horas)", "ignore_unavailable": "Ignorar estados indisponíveis e desconhecidos", "attribute_changes": "Registar alterações significativas de atributos"}}},
+    "step": {"init": {"title": "Opções do Entity Memory", "data": {"entities": "Entidades", "exclude_patterns": "Padrões excluídos",
+          "entity_patterns": "Padrões de entidades (um por linha)", "window_hours": "Janela de memória (horas)", "ignore_unavailable": "Ignorar estados indisponíveis e desconhecidos", "attribute_changes": "Registar alterações significativas de atributos"}}},
     "error": {"invalid_entity_patterns": "Utilize padrões completos com um domínio suportado, por exemplo light.*.", "no_matching_entities": "Selecione pelo menos uma entidade ou introduza um padrão."}
   },
   "services": {

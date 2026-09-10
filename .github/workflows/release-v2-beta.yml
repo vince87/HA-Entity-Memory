@@ -1,0 +1,72 @@
+name: Publish 2.0.0-beta.1
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/release-v2-beta.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-2.0.0-beta.1
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'vince87/HA-Entity-Memory' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: 2.0.0-beta.1
+      RELEASE_COMMIT: dea0069d81dc72a08c41688c6ef55325426fc5ec
+    steps:
+      - name: Publish verified prerelease
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release already exists; leaving it unchanged."
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          ## Italiano
+
+          Prima prerelease della v2, per **Home Assistant 2026.9.0 o successivo**.
+
+          - Correlazione dei Context nativi di utenti, automazioni e script prima delle euristiche precedenti.
+          - Monitoraggio di tutti i domini con `*`, esclusioni e riconoscimento delle nuove entità senza reload.
+          - Cache RAM compressa e storico Recorder caricato alla prima interrogazione dell'entità.
+          - Nessun secondo storico nel database.
+          - Compatibilità mantenuta per `entity_memory.was_changed`, le altre azioni, gli origin e i registri persistenti. **Non occorre modificare le automazioni.**
+
+          **Verifiche:** 89 test su HA 2026.9.0 e 2026.9.1; Ruff, Hassfest e HACS superati. Un benchmark sintetico su 20.000 eventi e 1.000 entità ha misurato circa il 54% di memoria trattenuta in meno, con un costo CPU aggiuntivo per la compressione.
+
+          **Limiti:** è una beta, non ancora sottoposta a una prova prolungata sull'impianto reale. La RAM dipende dalla frequenza degli eventi e dalla finestra configurata. Lo storico senza causalità verificabile resta `unknown`; `external_or_physical` non prova necessariamente la pressione di un pulsante fisico.
+
+          **Installazione:** in HACS abilita la visualizzazione delle versioni beta e seleziona esplicitamente `2.0.0-beta.1`, quindi riavvia Home Assistant. La selezione delle entità esistente resta invariata; per monitorare tutto inserisci `*` nei pattern e configura le eventuali esclusioni.
+
+          Per HA precedente a 2026.9 usa la release **0.2.0** o il branch [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9). Il formato dei registri resta invariato anche per il rollback.
+
+          ## English
+
+          First v2 prerelease for **Home Assistant 2026.9.0 or newer**.
+
+          Native context ancestry takes precedence over legacy service inference. All-domain selection, exclusions, dynamic membership, compressed RAM payloads and per-entity lazy Recorder restoration improve scalability without duplicating database history.
+
+          Existing response actions, origin filters and persistent registers remain compatible; no automation migration is required. The complete configured event window is retained.
+
+          Validation: 89 tests on HA 2026.9.0 and 2026.9.1, plus Ruff, Hassfest and HACS. Historical attribution remains conservatively unknown when evidence is unavailable. Real-device soak testing is still pending.
+
+          Enable beta versions in HACS, select this named version and restart HA. Older HA installations should keep release 0.2.0 or use pre-2026.9.
+
+          [Design and compatibility](https://github.com/vince87/HA-Entity-Memory/blob/dea0069d81dc72a08c41688c6ef55325426fc5ec/docs/V2_DESIGN.md) · [Changes in PR #24](https://github.com/vince87/HA-Entity-Memory/pull/24)
+          NOTES
+          gh release create "$RELEASE_TAG" \
+            --target "$RELEASE_COMMIT" \
+            --title "2.0.0-beta.1 — Home Assistant 2026.9" \
+            --prerelease \
+            --notes-file "$RUNNER_TEMP/release-notes.md"

@@ -135,4 +135,3 @@ Le azioni delle automazioni e i registri persistenti restano compatibili. La sel
 La correlazione dei Context nativi ha precedenza sulla precedente correlazione dei valori dei comandi. Lo storico del Recorder viene caricato quando si interroga per la prima volta un'entità. La RAM conserva gli eventi compressi per tutta la finestra configurata, senza un secondo storico nel DB. La memoria dipende comunque dalla frequenza degli eventi e dalla durata della finestra: non vengono scartati eventi dopo una soglia che renderebbe inesatte le interrogazioni.
 
 Consulta il [progetto v2 e la compatibilità](docs/V2_DESIGN.md) per comportamento, limiti e verifiche.
-

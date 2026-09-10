@@ -15,6 +15,11 @@
 
 <p align="center"><a href="README.md">English</a> · <strong>Italiano</strong></p>
 
+> [!WARNING]
+> **La beta 2.0.0-beta.1 richiede Home Assistant 2026.9.0 o successivo. Non è compatibile con le versioni precedenti a 2026.9.**
+>
+> È stata verificata su Home Assistant **2026.9.0 e 2026.9.1**. Se usi una versione precedente, resta sulla [release 0.2.0](https://github.com/vince87/HA-Entity-Memory/releases/tag/0.2.0) o sul branch [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9).
+
 Entity Memory aggiunge due tipi di memoria senza creare entità helper visibili:
 
 - **Memoria degli eventi:** conserva i cambiamenti significativi recenti di luci, tapparelle, climatizzatori, interruttori e sensori binari, attribuendone prudentemente l’origine.

@@ -1,12 +1,14 @@
 {
   "title": "Entity Memory",
   "config": {
-    "step": {"user": {"title": "Configurer Entity Memory", "description": "Sélectionnez des entités individuelles ou utilisez des motifs génériques. Des motifs très larges peuvent augmenter l’utilisation de la mémoire et la charge de Recorder.", "data": {"entities": "Entités", "entity_patterns": "Motifs d’entités (un par ligne)", "window_hours": "Fenêtre de mémoire (heures)", "ignore_unavailable": "Ignorer les états indisponibles et inconnus", "attribute_changes": "Enregistrer les modifications d’attributs significatives"}}},
+    "step": {"user": {"title": "Configurer Entity Memory", "description": "Sélectionnez des entités individuelles ou utilisez des motifs génériques. Des motifs très larges peuvent augmenter l’utilisation de la mémoire et la charge de Recorder.", "data": {"entities": "Entités", "exclude_patterns": "Motifs à exclure",
+          "entity_patterns": "Motifs d’entités (un par ligne)", "window_hours": "Fenêtre de mémoire (heures)", "ignore_unavailable": "Ignorer les états indisponibles et inconnus", "attribute_changes": "Enregistrer les modifications d’attributs significatives"}}},
     "error": {"invalid_entity_patterns": "Utilisez des motifs complets avec un domaine pris en charge, par exemple light.*.", "no_matching_entities": "Sélectionnez au moins une entité ou saisissez un motif."},
     "abort": {"single_instance_allowed": "Entity Memory est déjà configuré."}
   },
   "options": {
-    "step": {"init": {"title": "Options d’Entity Memory", "data": {"entities": "Entités", "entity_patterns": "Motifs d’entités (un par ligne)", "window_hours": "Fenêtre de mémoire (heures)", "ignore_unavailable": "Ignorer les états indisponibles et inconnus", "attribute_changes": "Enregistrer les modifications d’attributs significatives"}}},
+    "step": {"init": {"title": "Options d’Entity Memory", "data": {"entities": "Entités", "exclude_patterns": "Motifs à exclure",
+          "entity_patterns": "Motifs d’entités (un par ligne)", "window_hours": "Fenêtre de mémoire (heures)", "ignore_unavailable": "Ignorer les états indisponibles et inconnus", "attribute_changes": "Enregistrer les modifications d’attributs significatives"}}},
     "error": {"invalid_entity_patterns": "Utilisez des motifs complets avec un domaine pris en charge, par exemple light.*.", "no_matching_entities": "Sélectionnez au moins une entité ou saisissez un motif."}
   },
   "services": {

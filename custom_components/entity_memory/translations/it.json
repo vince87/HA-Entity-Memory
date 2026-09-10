@@ -7,6 +7,7 @@
         "description": "Seleziona entità singole oppure usa pattern wildcard. Pattern molto ampi possono aumentare l'uso di memoria e il carico su Recorder.",
         "data": {
           "entities": "Entità",
+          "exclude_patterns": "Pattern da escludere",
           "entity_patterns": "Pattern entità (uno per riga)",
           "window_hours": "Finestra di memoria (ore)",
           "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
@@ -26,6 +27,7 @@
         "title": "Opzioni di Entity Memory",
         "data": {
           "entities": "Entità",
+          "exclude_patterns": "Pattern da escludere",
           "entity_patterns": "Pattern entità (uno per riga)",
           "window_hours": "Finestra di memoria (ore)",
           "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",

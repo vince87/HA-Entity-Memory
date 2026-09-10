@@ -49,7 +49,7 @@ Risponde a domande come “questo dispositivo è stato modificato di recente fuo
 
 Copia `custom_components/entity_memory` in `/config/custom_components/entity_memory`, riavvia Home Assistant e aggiungi l’integrazione da **Impostazioni → Dispositivi e servizi**.
 
-Richiede Home Assistant `2026.1.0` o successivo. Recorder è necessario per ripristinare lo storico degli eventi all’avvio.
+Richiede Home Assistant `2026.9.0` o successivo. Recorder è necessario per ripristinare lo storico degli eventi all’avvio.
 
 ## Primi passi
 
@@ -125,3 +125,13 @@ Per segnalare un problema indica la versione di Entity Memory e di Home Assistan
 ## Licenza
 
 [MIT](LICENSE)
+
+## Home Assistant 2026.9 / v2
+
+Questo branch sviluppa `2.0.0-beta.1` per Home Assistant 2026.9+. Il codice 0.2.0 è conservato in [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9); i tag delle release esistenti restano disponibili per le installazioni meno recenti.
+
+Le azioni delle automazioni e i registri persistenti restano compatibili. La selezione delle entità già configurata non cambia. Per monitorare tutti i domini inserisci `*` nei pattern; puoi escludere `sensor.*`, `update.*` o singole entità nel nuovo campo di esclusione. Le nuove entità vengono riconosciute subito. Non serve modificare le automazioni né introdurre configurazione YAML.
+
+La correlazione dei Context nativi ha precedenza sulla precedente correlazione dei valori dei comandi. Lo storico del Recorder viene caricato quando si interroga per la prima volta un'entità. La RAM conserva gli eventi compressi per tutta la finestra configurata, senza un secondo storico nel DB. La memoria dipende comunque dalla frequenza degli eventi e dalla durata della finestra: non vengono scartati eventi dopo una soglia che renderebbe inesatte le interrogazioni.
+
+Consulta il [progetto v2 e la compatibilità](docs/V2_DESIGN.md) per comportamento, limiti e verifiche.

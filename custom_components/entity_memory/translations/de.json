@@ -1,12 +1,14 @@
 {
   "title": "Entity Memory",
   "config": {
-    "step": {"user": {"title": "Entity Memory einrichten", "description": "Wähle einzelne Entitäten aus oder verwende Platzhaltermuster. Sehr breite Muster können Speicherbedarf und Recorder-Last erhöhen.", "data": {"entities": "Entitäten", "entity_patterns": "Entitätsmuster (eines pro Zeile)", "window_hours": "Speicherzeitraum (Stunden)", "ignore_unavailable": "Nicht verfügbare und unbekannte Zustände ignorieren", "attribute_changes": "Bedeutsame Attributänderungen aufzeichnen"}}},
+    "step": {"user": {"title": "Entity Memory einrichten", "description": "Wähle einzelne Entitäten aus oder verwende Platzhaltermuster. Sehr breite Muster können Speicherbedarf und Recorder-Last erhöhen.", "data": {"entities": "Entitäten", "exclude_patterns": "Ausschlussmuster",
+          "entity_patterns": "Entitätsmuster (eines pro Zeile)", "window_hours": "Speicherzeitraum (Stunden)", "ignore_unavailable": "Nicht verfügbare und unbekannte Zustände ignorieren", "attribute_changes": "Bedeutsame Attributänderungen aufzeichnen"}}},
     "error": {"invalid_entity_patterns": "Verwende vollständige Muster mit einer unterstützten Domäne, zum Beispiel light.*.", "no_matching_entities": "Wähle mindestens eine Entität aus oder gib ein Muster ein."},
     "abort": {"single_instance_allowed": "Entity Memory ist bereits konfiguriert."}
   },
   "options": {
-    "step": {"init": {"title": "Entity-Memory-Optionen", "data": {"entities": "Entitäten", "entity_patterns": "Entitätsmuster (eines pro Zeile)", "window_hours": "Speicherzeitraum (Stunden)", "ignore_unavailable": "Nicht verfügbare und unbekannte Zustände ignorieren", "attribute_changes": "Bedeutsame Attributänderungen aufzeichnen"}}},
+    "step": {"init": {"title": "Entity-Memory-Optionen", "data": {"entities": "Entitäten", "exclude_patterns": "Ausschlussmuster",
+          "entity_patterns": "Entitätsmuster (eines pro Zeile)", "window_hours": "Speicherzeitraum (Stunden)", "ignore_unavailable": "Nicht verfügbare und unbekannte Zustände ignorieren", "attribute_changes": "Bedeutsame Attributänderungen aufzeichnen"}}},
     "error": {"invalid_entity_patterns": "Verwende vollständige Muster mit einer unterstützten Domäne, zum Beispiel light.*.", "no_matching_entities": "Wähle mindestens eine Entität aus oder gib ein Muster ein."}
   },
   "services": {

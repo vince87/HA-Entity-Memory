@@ -49,7 +49,7 @@ It answers questions such as “was this device recently changed outside my auto
 
 Copy `custom_components/entity_memory` to `/config/custom_components/entity_memory`, restart Home Assistant, and add the integration from **Settings → Devices & services**.
 
-Requires Home Assistant `2026.1.0` or newer. Recorder is required to restore event history after startup.
+Requires Home Assistant `2026.9.0` or newer. Recorder is required to restore event history after startup.
 
 ## Quick start
 
@@ -125,3 +125,13 @@ When reporting a problem, include the Entity Memory version, Home Assistant vers
 ## License
 
 [MIT](LICENSE)
+
+## Home Assistant 2026.9 / v2
+
+This branch develops `2.0.0-beta.1` for Home Assistant 2026.9+. The unchanged 0.2.0 code is preserved on [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9); existing release tags remain available for older HA installations.
+
+Existing automation actions and persistent registers remain compatible. Existing entity selections stay unchanged. To monitor every domain, enter `*` in entity patterns; optionally exclude `sensor.*`, `update.*` or individual entities using exclusion patterns. New entities are matched immediately. No YAML configuration or template-function migration is needed.
+
+Native context ancestry takes precedence over legacy service-value correlation. History is restored from Recorder when an entity is first queried, rather than loading all selected entities at startup. RAM stores compressed event payloads for the full configured window, with no second database history. Memory still grows with event rate and window length; there is no fixed per-entity event cap that could silently change query results.
+
+See [v2 design and compatibility](docs/V2_DESIGN.md) for exact behavior, limitations and validation.

@@ -24,7 +24,7 @@ def test_parse_patterns_accepts_lines_and_commas() -> None:
 
 def test_rejects_unsupported_or_malformed_patterns() -> None:
     assert patterns_are_valid(["light.*", "binary_sensor.window_?"])
-    assert not patterns_are_valid(["sensor.*"])
+    assert patterns_are_valid(["sensor.*", "*", "*.*", "lock.*"])
     assert not patterns_are_valid(["light *"])
 
 

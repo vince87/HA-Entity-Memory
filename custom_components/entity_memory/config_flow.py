@@ -22,7 +22,6 @@ from .const import (
     DOMAIN,
     MAX_WINDOW_HOURS,
     MIN_WINDOW_HOURS,
-    SUPPORTED_DOMAINS,
 )
 from .selection import (
     known_entity_ids,
@@ -43,14 +42,13 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
         {
             vol.Optional(
                 CONF_ENTITIES, default=defaults.get(CONF_ENTITIES, [])
-            ): selector.EntitySelector(
-                selector.EntitySelectorConfig(
-                    domain=list(SUPPORTED_DOMAINS), multiple=True
-                )
-            ),
+            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_ENTITY_PATTERNS,
                 default=defaults.get(CONF_ENTITY_PATTERNS, ""),
+            ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
+            vol.Optional(
+                "exclude_patterns", default=defaults.get("exclude_patterns", "")
             ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
             vol.Required(
                 CONF_WINDOW_HOURS,
@@ -96,7 +94,9 @@ class EntityMemoryConfigFlow(ConfigFlow, domain=DOMAIN):
                 patterns,
                 _available_entity_ids(self.hass),
             )
-            if not patterns_are_valid(patterns):
+            if not patterns_are_valid(
+                patterns + parse_patterns(user_input.get("exclude_patterns"))
+            ):
                 errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
             elif not resolved and not patterns:
                 errors["base"] = "no_matching_entities"
@@ -128,7 +128,9 @@ class EntityMemoryOptionsFlow(OptionsFlow):
                 patterns,
                 _available_entity_ids(self.hass),
             )
-            if not patterns_are_valid(patterns):
+            if not patterns_are_valid(
+                patterns + parse_patterns(user_input.get("exclude_patterns"))
+            ):
                 errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
             elif not resolved and not patterns:
                 errors["base"] = "no_matching_entities"
@@ -137,3 +139,4 @@ class EntityMemoryOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init", data_schema=_schema(defaults), errors=errors
         )
+

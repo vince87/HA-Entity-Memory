@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import timedelta
+from asyncio import Lock
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from typing import Any
 
 import voluptuous as vol
 from homeassistant.components.automation import EVENT_AUTOMATION_TRIGGERED
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ENTITY_ID, EVENT_CALL_SERVICE
+from homeassistant.const import ATTR_ENTITY_ID, EVENT_CALL_SERVICE, EVENT_STATE_CHANGED
 from homeassistant.core import (
     Event,
     HomeAssistant,
@@ -20,7 +21,7 @@ from homeassistant.core import (
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.event import async_call_later, async_track_state_change_event
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
@@ -40,11 +41,12 @@ from .const import (
     REGISTER_STORAGE_VERSION,
     SIGNIFICANT_ATTRIBUTES,
 )
+from .contexts import ContextCache
 from .correlation import IntentTracker
 from .models import EventConfidence, EventOrigin, MemoryEvent
 from .recorder import async_restore_events
 from .registers import RegisterStore
-from .selection import known_entity_ids, parse_patterns, resolve_entities
+from .selection import known_entity_ids, parse_patterns, resolve_entities, selected
 from .store import EventStore
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -58,6 +60,31 @@ class EntityMemoryRuntime:
     intents: IntentTracker
     entity_ids: set[str]
     registers: RegisterStore
+    started: datetime | None = None
+    include_attributes: bool = True
+    ignore_unavailable: bool = True
+    restored: set[str] = field(default_factory=set)
+    restore_lock: Lock = field(default_factory=Lock)
+
+    async def async_prepare(self, hass: HomeAssistant, entity_ids: list[str]) -> None:
+        """Restore only requested entities; serialize overlapping first queries."""
+        if self.started is None:
+            return
+        async with self.restore_lock:
+            missing = set(entity_ids) & self.entity_ids - self.restored
+            for entity_id in sorted(missing):
+                now = dt_util.utcnow()
+                if now - self.store.window < self.started:
+                    events = await async_restore_events(
+                        hass,
+                        {entity_id},
+                        now - self.store.window,
+                        self.started,
+                        include_attributes=self.include_attributes,
+                        ignore_unavailable=self.ignore_unavailable,
+                    )
+                    self.store.extend(events, dt_util.utcnow())
+                self.restored.add(entity_id)
 
 
 type EntityMemoryConfigEntry = ConfigEntry[EntityMemoryRuntime]
@@ -158,29 +185,50 @@ async def async_setup_entry(
     """Set up Entity Memory from a config entry."""
     config = {**entry.data, **entry.options}
     patterns = parse_patterns(config.get(CONF_ENTITY_PATTERNS))
+    explicit = set(config.get(CONF_ENTITIES, []))
+    excludes = parse_patterns(config.get("exclude_patterns"))
     entity_ids = resolve_entities(
         config.get(CONF_ENTITIES, []),
         patterns,
         _available_entity_ids(hass),
     )
+    entity_ids = {e for e in entity_ids if selected(e, explicit, patterns, excludes)}
     window = timedelta(hours=float(config.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS)))
     ignore_unavailable = config.get(CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE)
     include_attributes = config.get(CONF_ATTRIBUTE_CHANGES, DEFAULT_ATTRIBUTE_CHANGES)
     store = EventStore(window)
     intents = IntentTracker()
+    contexts = ContextCache()
     registers = RegisterStore(
         Store(hass, REGISTER_STORAGE_VERSION, REGISTER_STORAGE_KEY)
     )
     await registers.async_load()
-    entry.runtime_data = EntityMemoryRuntime(store, intents, entity_ids, registers)
+    entry.runtime_data = EntityMemoryRuntime(
+        store,
+        intents,
+        entity_ids,
+        registers,
+        dt_util.utcnow(),
+        include_attributes,
+        ignore_unavailable,
+    )
 
-    async def _service_called(event: Event) -> None:
+    @callback
+    def _service_called(event: Event) -> None:
+        contexts.observe(event)
         intents.observe_call(event, entity_ids)
 
-    async def _automation_triggered(event: Event) -> None:
+    @callback
+    def _automation_triggered(event: Event) -> None:
+        contexts.observe(event)
         intents.observe_automation(event)
 
-    async def _state_changed(event: Event) -> None:
+    @callback
+    def _state_changed(event: Event) -> None:
+        entity_id = event.data.get(ATTR_ENTITY_ID, "")
+        if not selected(entity_id, explicit, patterns, excludes):
+            return
+        entity_ids.add(entity_id)
         old_state = event.data.get("old_state")
         new_state = event.data.get("new_state")
         if old_state is None or new_state is None:
@@ -190,7 +238,10 @@ async def async_setup_entry(
         if not _is_significant(old_state, new_state, include_attributes):
             return
         memory_event = MemoryEvent.from_states(old_state, new_state)
-        if intent := intents.match(memory_event):
+        native = contexts.resolve(memory_event)
+        if native is not None:
+            memory_event = native
+        elif intent := intents.match(memory_event):
             memory_event = memory_event.attributed(
                 origin=intent.origin,
                 confidence=EventConfidence.HIGH,
@@ -204,67 +255,32 @@ async def async_setup_entry(
             memory_event = memory_event.attributed(
                 origin=(
                     EventOrigin.DEVICE_OBSERVATION
-                    if domain == "binary_sensor"
+                    if domain in {"binary_sensor", "sensor"}
                     else EventOrigin.EXTERNAL_OR_PHYSICAL
                 ),
                 confidence=(
                     EventConfidence.HIGH
-                    if domain == "binary_sensor"
+                    if domain in {"binary_sensor", "sensor"}
                     else EventConfidence.MEDIUM
                 ),
             )
         store.add(memory_event, dt_util.utcnow())
 
-    entry.async_on_unload(
-        async_track_state_change_event(hass, list(entity_ids), _state_changed)
-    )
+    entry.async_on_unload(hass.bus.async_listen(EVENT_STATE_CHANGED, _state_changed))
     entry.async_on_unload(hass.bus.async_listen(EVENT_CALL_SERVICE, _service_called))
     entry.async_on_unload(
         hass.bus.async_listen(EVENT_AUTOMATION_TRIGGERED, _automation_triggered)
     )
-
-    if patterns:
-        reload_pending = False
-
-        async def _reload_after_registry_update(_now) -> None:
-            nonlocal reload_pending
-            reload_pending = False
-            await hass.config_entries.async_reload(entry.entry_id)
-
-        @callback
-        def _entity_registry_updated(
-            _event: Event[er.EventEntityRegistryUpdatedData],
-        ) -> None:
-            """Reload when a registry change alters wildcard expansion."""
-            nonlocal reload_pending
-            resolved = resolve_entities(
-                config.get(CONF_ENTITIES, []),
-                patterns,
-                _available_entity_ids(hass),
-            )
-            if reload_pending or resolved == entity_ids:
-                return
-            reload_pending = True
-            entry.async_on_unload(
-                async_call_later(hass, 1, _reload_after_registry_update)
-            )
-
-        entry.async_on_unload(
-            hass.bus.async_listen(
-                er.EVENT_ENTITY_REGISTRY_UPDATED, _entity_registry_updated
-            )
-        )
-
-    now = dt_util.utcnow()
-    restored = await async_restore_events(
-        hass,
-        entity_ids,
-        now - window,
-        now,
-        include_attributes=include_attributes,
-        ignore_unavailable=ignore_unavailable,
+    entry.async_on_unload(
+        hass.bus.async_listen("script_started", _automation_triggered)
     )
-    store.extend(restored, dt_util.utcnow())
+
+    @callback
+    def _prune(now) -> None:
+        store.prune(now)
+        intents.prune(now)
+
+    entry.async_on_unload(async_track_time_interval(hass, _prune, timedelta(minutes=1)))
 
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
     return True
@@ -283,12 +299,16 @@ def _register_actions(hass: HomeAssistant) -> None:
         data = call.data
         since = dt_util.utcnow() - data["since"]
         origins = set(data["origins"]) if data.get("origins") else None
-        events = _runtime().store.query(
+        runtime = _runtime()
+        await runtime.async_prepare(hass, data[ATTR_ENTITY_ID])
+        runtime.store.prune(dt_util.utcnow())
+        events = runtime.store.query(
             data[ATTR_ENTITY_ID],
             since,
             to_state=data.get("to_state"),
             origins=origins,
-        )[: data["limit"]]
+            limit=data["limit"],
+        )
         return {
             "events": [event.as_dict() for event in events],
             "count": len(events),
@@ -376,3 +396,4 @@ async def async_unload_entry(
 ) -> bool:
     """Unload Entity Memory."""
     return True
+

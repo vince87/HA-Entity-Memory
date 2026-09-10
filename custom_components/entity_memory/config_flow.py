@@ -139,4 +139,3 @@ class EntityMemoryOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init", data_schema=_schema(defaults), errors=errors
         )
-

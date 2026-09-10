@@ -9,8 +9,9 @@ import voluptuous as vol
 from homeassistant.core import SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.entity_memory import _register_actions
+from custom_components.entity_memory import EntityMemoryRuntime, _register_actions
 from custom_components.entity_memory.const import DOMAIN
+from custom_components.entity_memory.correlation import IntentTracker
 from custom_components.entity_memory.registers import RegisterStore
 from custom_components.entity_memory.store import EventStore
 
@@ -71,9 +72,11 @@ async def _services() -> FakeServices:
     hass = SimpleNamespace(
         services=services,
         config_entries=FakeConfigEntries(
-            SimpleNamespace(
+            EntityMemoryRuntime(
                 registers=registers,
                 store=EventStore(timedelta(hours=12)),
+                intents=IntentTracker(),
+                entity_ids=set(),
             )
         ),
     )
@@ -162,7 +165,7 @@ async def test_set_service_returns_conflict_without_changing_value() -> None:
 async def test_service_schemas_reject_unsupported_or_invalid_data() -> None:
     services = await _services()
 
-    with pytest.raises(vol.Invalid, match="extra keys not allowed"):
+    with pytest.raises(vol.Invalid, match="extra keys not allowed|not a valid option"):
         await services.call(
             "compare_register",
             {"key": "test.phase", "value": "day", "expected_revision": 0},

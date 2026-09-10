@@ -12,8 +12,6 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_ATTRIBUTE_CHANGES,
-    CONF_ENTITIES,
-    CONF_ENTITY_PATTERNS,
     CONF_IGNORE_UNAVAILABLE,
     CONF_WINDOW_HOURS,
     DEFAULT_ATTRIBUTE_CHANGES,
@@ -24,10 +22,10 @@ from .const import (
     MIN_WINDOW_HOURS,
 )
 from .selection import (
+    all_entities_config,
     known_entity_ids,
     parse_patterns,
     patterns_are_valid,
-    resolve_entities,
 )
 
 
@@ -36,17 +34,21 @@ def _available_entity_ids(hass: HomeAssistant) -> set[str]:
     return known_entity_ids(hass.states.async_entity_ids(), er.async_get(hass).entities)
 
 
+def _submitted(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Empty exclusions are intentional; never reseed recommendations on save."""
+    return {
+        **user_input,
+        "selection_mode": "all",
+        "entities": [],
+        "entity_patterns": "*",
+        "exclude_patterns": user_input.get("exclude_patterns", ""),
+    }
+
+
 def _schema(defaults: dict[str, Any]) -> vol.Schema:
     """Build the shared configuration schema."""
     return vol.Schema(
         {
-            vol.Optional(
-                CONF_ENTITIES, default=defaults.get(CONF_ENTITIES, [])
-            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
-            vol.Optional(
-                CONF_ENTITY_PATTERNS,
-                default=defaults.get(CONF_ENTITY_PATTERNS, ""),
-            ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
             vol.Optional(
                 "exclude_patterns", default=defaults.get("exclude_patterns", "")
             ): selector.TextSelector(selector.TextSelectorConfig(multiline=True)),
@@ -88,22 +90,23 @@ class EntityMemoryConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="single_instance_allowed")
         errors: dict[str, str] = {}
         if user_input is not None:
-            patterns = parse_patterns(user_input.get(CONF_ENTITY_PATTERNS))
-            resolved = resolve_entities(
-                user_input.get(CONF_ENTITIES, []),
-                patterns,
-                _available_entity_ids(self.hass),
-            )
             if not patterns_are_valid(
-                patterns + parse_patterns(user_input.get("exclude_patterns"))
+                parse_patterns(user_input.get("exclude_patterns"))
             ):
-                errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
-            elif not resolved and not patterns:
-                errors["base"] = "no_matching_entities"
+                errors["exclude_patterns"] = "invalid_entity_patterns"
             else:
-                return self.async_create_entry(title="Entity Memory", data=user_input)
+                return self.async_create_entry(
+                    title="Entity Memory", data=_submitted(user_input)
+                )
         return self.async_show_form(
-            step_id="user", data_schema=_schema(user_input or {}), errors=errors
+            step_id="user",
+            data_schema=_schema(
+                all_entities_config(
+                    {} if user_input is None else _submitted(user_input),
+                    _available_entity_ids(self.hass),
+                )
+            ),
+            errors=errors,
         )
 
     @staticmethod
@@ -122,20 +125,19 @@ class EntityMemoryOptionsFlow(OptionsFlow):
         defaults = {**self.config_entry.data, **self.config_entry.options}
         errors: dict[str, str] = {}
         if user_input is not None:
-            patterns = parse_patterns(user_input.get(CONF_ENTITY_PATTERNS))
-            resolved = resolve_entities(
-                user_input.get(CONF_ENTITIES, []),
-                patterns,
-                _available_entity_ids(self.hass),
-            )
             if not patterns_are_valid(
-                patterns + parse_patterns(user_input.get("exclude_patterns"))
+                parse_patterns(user_input.get("exclude_patterns"))
             ):
-                errors[CONF_ENTITY_PATTERNS] = "invalid_entity_patterns"
-            elif not resolved and not patterns:
-                errors["base"] = "no_matching_entities"
+                errors["exclude_patterns"] = "invalid_entity_patterns"
             else:
-                return self.async_create_entry(data=user_input)
+                return self.async_create_entry(data=_submitted(user_input))
         return self.async_show_form(
-            step_id="init", data_schema=_schema(defaults), errors=errors
+            step_id="init",
+            data_schema=_schema(
+                all_entities_config(
+                    defaults if user_input is None else _submitted(user_input),
+                    _available_entity_ids(self.hass),
+                )
+            ),
+            errors=errors,
         )

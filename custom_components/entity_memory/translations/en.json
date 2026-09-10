@@ -4,11 +4,9 @@
     "step": {
       "user": {
         "title": "Set up Entity Memory",
-        "description": "Select individual entities or use wildcard patterns. Broad patterns can increase memory usage and Recorder load.",
+        "description": "All entities are monitored automatically. Exclude what you do not need using patterns or individual entity IDs, one per line. The initial list filters updates and technical telemetry: edit or clear it freely. Temperature, power, battery and opening sensors remain included.",
         "data": {
-          "entities": "Entities",
-          "exclude_patterns": "Exclude patterns",
-          "entity_patterns": "Entity patterns (one per line)",
+          "exclude_patterns": "Exclude patterns (one per line)",
           "window_hours": "Memory window (hours)",
           "ignore_unavailable": "Ignore unavailable and unknown states",
           "attribute_changes": "Track significant attribute changes"
@@ -16,28 +14,27 @@
       }
     },
     "error": {
-      "invalid_entity_patterns": "Use a complete pattern with a supported domain, for example light.*.",
-      "no_matching_entities": "Select at least one entity or enter a pattern."
+      "invalid_entity_patterns": "Use a full entity ID or a pattern, such as sensor.*_rssi or update.*."
     },
-    "abort": {"single_instance_allowed": "Entity Memory is already configured."}
+    "abort": {
+      "single_instance_allowed": "Entity Memory is already configured."
+    }
   },
   "options": {
     "step": {
       "init": {
         "title": "Entity Memory options",
         "data": {
-          "entities": "Entities",
-          "exclude_patterns": "Exclude patterns",
-          "entity_patterns": "Entity patterns (one per line)",
+          "exclude_patterns": "Exclude patterns (one per line)",
           "window_hours": "Memory window (hours)",
           "ignore_unavailable": "Ignore unavailable and unknown states",
           "attribute_changes": "Track significant attribute changes"
-        }
+        },
+        "description": "All entities are monitored automatically. Exclude what you do not need using patterns or individual entity IDs, one per line. The initial list filters updates and technical telemetry: edit or clear it freely. Temperature, power, battery and opening sensors remain included."
       }
     },
     "error": {
-      "invalid_entity_patterns": "Use a complete pattern with a supported domain, for example light.*.",
-      "no_matching_entities": "Select at least one entity or enter a pattern."
+      "invalid_entity_patterns": "Use a full entity ID or a pattern, such as sensor.*_rssi or update.*."
     }
   },
   "services": {
@@ -45,79 +42,170 @@
       "name": "Get events",
       "description": "Return matching recent events, newest first.",
       "fields": {
-        "entity_id": {"name": "Entities", "description": "Entities to query."},
-        "since": {"name": "Look-back period", "description": "How far back to search."},
-        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
-        "origins": {"name": "Origins", "description": "Only return events with these origins."},
-        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+        "entity_id": {
+          "name": "Entities",
+          "description": "Entities to query."
+        },
+        "since": {
+          "name": "Look-back period",
+          "description": "How far back to search."
+        },
+        "to_state": {
+          "name": "New state",
+          "description": "Only return transitions to this state."
+        },
+        "origins": {
+          "name": "Origins",
+          "description": "Only return events with these origins."
+        },
+        "limit": {
+          "name": "Maximum results",
+          "description": "Maximum number of events to return."
+        }
       }
     },
     "last_event": {
       "name": "Get last event",
       "description": "Return the newest matching event.",
       "fields": {
-        "entity_id": {"name": "Entities", "description": "Entities to query."},
-        "since": {"name": "Look-back period", "description": "How far back to search."},
-        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
-        "origins": {"name": "Origins", "description": "Only return events with these origins."},
-        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+        "entity_id": {
+          "name": "Entities",
+          "description": "Entities to query."
+        },
+        "since": {
+          "name": "Look-back period",
+          "description": "How far back to search."
+        },
+        "to_state": {
+          "name": "New state",
+          "description": "Only return transitions to this state."
+        },
+        "origins": {
+          "name": "Origins",
+          "description": "Only return events with these origins."
+        },
+        "limit": {
+          "name": "Maximum results",
+          "description": "Maximum number of events to return."
+        }
       }
     },
     "was_changed": {
       "name": "Check recent change",
       "description": "Check whether at least one matching event exists.",
       "fields": {
-        "entity_id": {"name": "Entities", "description": "Entities to query."},
-        "since": {"name": "Look-back period", "description": "How far back to search."},
-        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
-        "origins": {"name": "Origins", "description": "Only return events with these origins."},
-        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+        "entity_id": {
+          "name": "Entities",
+          "description": "Entities to query."
+        },
+        "since": {
+          "name": "Look-back period",
+          "description": "How far back to search."
+        },
+        "to_state": {
+          "name": "New state",
+          "description": "Only return transitions to this state."
+        },
+        "origins": {
+          "name": "Origins",
+          "description": "Only return events with these origins."
+        },
+        "limit": {
+          "name": "Maximum results",
+          "description": "Maximum number of events to return."
+        }
       }
     },
     "count_events": {
       "name": "Count events",
       "description": "Count matching events in the requested period.",
       "fields": {
-        "entity_id": {"name": "Entities", "description": "Entities to query."},
-        "since": {"name": "Look-back period", "description": "How far back to search."},
-        "to_state": {"name": "New state", "description": "Only return transitions to this state."},
-        "origins": {"name": "Origins", "description": "Only return events with these origins."},
-        "limit": {"name": "Maximum results", "description": "Maximum number of events to return."}
+        "entity_id": {
+          "name": "Entities",
+          "description": "Entities to query."
+        },
+        "since": {
+          "name": "Look-back period",
+          "description": "How far back to search."
+        },
+        "to_state": {
+          "name": "New state",
+          "description": "Only return transitions to this state."
+        },
+        "origins": {
+          "name": "Origins",
+          "description": "Only return events with these origins."
+        },
+        "limit": {
+          "name": "Maximum results",
+          "description": "Maximum number of events to return."
+        }
       }
     },
     "get_register": {
       "name": "Get register",
       "description": "Return one persistent automation value.",
-      "fields": {"key": {"name": "Key", "description": "Namespaced register key."}}
+      "fields": {
+        "key": {
+          "name": "Key",
+          "description": "Namespaced register key."
+        }
+      }
     },
     "set_register": {
       "name": "Set register",
       "description": "Create or replace a persistent automation value.",
       "fields": {
-        "key": {"name": "Key", "description": "Namespaced register key."},
-        "value": {"name": "Value", "description": "JSON-compatible value to store."},
-        "expected_revision": {"name": "Expected revision", "description": "Write only when the stored revision matches; use 0 for a missing key."}
+        "key": {
+          "name": "Key",
+          "description": "Namespaced register key."
+        },
+        "value": {
+          "name": "Value",
+          "description": "JSON-compatible value to store."
+        },
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Write only when the stored revision matches; use 0 for a missing key."
+        }
       }
     },
     "compare_register": {
       "name": "Compare register",
       "description": "Compare a persistent value without changing it.",
       "fields": {
-        "key": {"name": "Key", "description": "Namespaced register key."},
-        "value": {"name": "Value", "description": "JSON-compatible value to compare."}
+        "key": {
+          "name": "Key",
+          "description": "Namespaced register key."
+        },
+        "value": {
+          "name": "Value",
+          "description": "JSON-compatible value to compare."
+        }
       }
     },
     "delete_register": {
       "name": "Delete register",
       "description": "Delete one persistent automation value.",
-      "fields": {"key": {"name": "Key", "description": "Namespaced register key."}}
+      "fields": {
+        "key": {
+          "name": "Key",
+          "description": "Namespaced register key."
+        }
+      }
     },
     "list_registers": {
       "name": "List registers",
       "description": "Return persistent values, optionally filtered by prefix.",
       "fields": {
-        "prefix": {"name": "Key prefix", "description": "Optional namespace prefix."},
-        "limit": {"name": "Maximum results", "description": "Maximum number of registers to return."}
+        "prefix": {
+          "name": "Key prefix",
+          "description": "Optional namespace prefix."
+        },
+        "limit": {
+          "name": "Maximum results",
+          "description": "Maximum number of registers to return."
+        }
       }
     }
   }

@@ -1,3 +1,13 @@
+# 2.0.0-beta.2 — Monitor all, exclude by pattern
+
+- Replace entity and inclusion-pattern pickers with one **Exclude patterns** field.
+- Monitor all entities automatically, including newly created entities.
+- Seed an editable list of update and technical-telemetry exclusions; accept exact entity IDs too.
+- Preserve explicit existing exclusions and omit recommendations that would drop previously monitored entities.
+- Persist the migration once; an intentionally emptied list stays empty after reload/restart.
+- Keep query actions, origins, memory options and persistent registers unchanged.
+- Requires Home Assistant 2026.9.0 or newer.
+
 # 2.0.0-beta.1 — Home Assistant 2026.9
 
 - Preserve all action names, inputs, output shapes, five origins and persistent-register format.

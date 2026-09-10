@@ -16,7 +16,7 @@
 <p align="center"><a href="README.md">English</a> · <strong>Italiano</strong></p>
 
 > [!WARNING]
-> **La beta 2.0.0-beta.1 richiede Home Assistant 2026.9.0 o successivo. Non è compatibile con le versioni precedenti a 2026.9.**
+> **La beta 2.0.0-beta.2 richiede Home Assistant 2026.9.0 o successivo. Non è compatibile con le versioni precedenti a 2026.9.**
 >
 > È stata verificata su Home Assistant **2026.9.0 e 2026.9.1**. Se usi una versione precedente, resta sulla [release 0.2.0](https://github.com/vince87/HA-Entity-Memory/releases/tag/0.2.0) o sul branch [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9).
 
@@ -33,7 +33,7 @@ Risponde a domande come “questo dispositivo è stato modificato di recente fuo
 ## Caratteristiche
 
 - Configurazione dall’interfaccia di Home Assistant
-- Entità esplicite e pattern wildcard come `cover.*`
+- Monitoraggio automatico di tutte le entità, con pattern di esclusione modificabili
 - Ripristino degli eventi tramite Recorder
 - Attribuzione prudente dell’origine e della confidenza
 - Azioni con risposta pensate per le automazioni
@@ -58,12 +58,12 @@ Richiede Home Assistant `2026.9.0` o successivo. Recorder è necessario per ripr
 
 ## Primi passi
 
-Scegli entità specifiche, pattern wildcard o entrambi. Usa la selezione più ristretta adatta allo scopo.
+Tutte le entità vengono monitorate automaticamente. L’unico campo di selezione è **Pattern da escludere**: accetta wildcard e ID singoli, uno per riga. La lista iniziale modificabile esclude aggiornamenti e telemetria tecnica come RSSI, qualità del collegamento, uptime e ultimo avvistamento. Temperatura, consumi, batterie e sensori di apertura restano inclusi.
 
 ```text
-light.cucina
-cover.*
-binary_sensor.*_finestra
+update.*
+sensor.*_rssi
+sensor.telemetria_non_utile
 ```
 
 Verifica se esiste un cambiamento recente rilevante:
@@ -133,9 +133,9 @@ Per segnalare un problema indica la versione di Entity Memory e di Home Assistan
 
 ## Home Assistant 2026.9 / v2
 
-Questo branch sviluppa `2.0.0-beta.1` per Home Assistant 2026.9+. Il codice 0.2.0 è conservato in [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9); i tag delle release esistenti restano disponibili per le installazioni meno recenti.
+Questo branch sviluppa `2.0.0-beta.2` per Home Assistant 2026.9+. Il codice 0.2.0 è conservato in [pre-2026.9](https://github.com/vince87/HA-Entity-Memory/tree/pre-2026.9); i tag delle release esistenti restano disponibili per le installazioni meno recenti.
 
-Le azioni delle automazioni e i registri persistenti restano compatibili. La selezione delle entità già configurata non cambia. Per monitorare tutti i domini inserisci `*` nei pattern; puoi escludere `sensor.*`, `update.*` o singole entità nel nuovo campo di esclusione. Le nuove entità vengono riconosciute subito. Non serve modificare le automazioni né introdurre configurazione YAML.
+Le azioni delle automazioni e i registri persistenti restano compatibili. Il monitoraggio si estende a tutte le entità. Le esclusioni esistenti restano valide; i pattern predefiniti che toglierebbero entità già monitorate vengono omessi. Puoi modificare o svuotare la lista: la scelta rimane valida anche dopo reload e riavvio. Le nuove entità vengono riconosciute subito. Non serve modificare le automazioni né introdurre configurazione YAML.
 
 La correlazione dei Context nativi ha precedenza sulla precedente correlazione dei valori dei comandi. Lo storico del Recorder viene caricato quando si interroga per la prima volta un'entità. La RAM conserva gli eventi compressi per tutta la finestra configurata, senza un secondo storico nel DB. La memoria dipende comunque dalla frequenza degli eventi e dalla durata della finestra: non vengono scartati eventi dopo una soglia che renderebbe inesatte le interrogazioni.
 

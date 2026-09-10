@@ -1,3 +1,14 @@
+# 2.0.0-beta.1 — Home Assistant 2026.9
+
+- Preserve all action names, inputs, output shapes, five origins and persistent-register format.
+- Resolve native user/automation/script context ancestry before service-value inference.
+- Support all domains with `*`, exclusion patterns, and live membership without reload.
+- Compress RAM event payloads; keep the complete rolling window and existing query limits.
+- Restore Recorder history lazily for requested entities, with concurrent-query serialization and live-event deduplication.
+- Keep conservative `unknown` restoration when Recorder history has no reliable context attribution.
+- Preserve version 0.2.0 on `pre-2026.9`. No automation edits required.
+- This development version is not a new published HACS release. See docs/V2_DESIGN.md.
+
 # 0.2.0
 
 First stable Entity Memory release.
@@ -168,3 +179,4 @@ Corrective prerelease for controlled testing on Home Assistant 2026.x.
   indistinguishable; these are reported as `external_or_physical`.
 - Recorder-restored events may have `unknown` origin with low confidence.
 - This alpha still requires validation on the reference HA 2026.8.3 container.
+

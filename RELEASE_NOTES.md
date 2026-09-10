@@ -179,4 +179,3 @@ Corrective prerelease for controlled testing on Home Assistant 2026.x.
   indistinguishable; these are reported as `external_or_physical`.
 - Recorder-restored events may have `unknown` origin with low confidence.
 - This alpha still requires validation on the reference HA 2026.8.3 container.
-

@@ -10,8 +10,11 @@ permissions:
 
 jobs:
   tests:
-    name: Python 3.14 / Home Assistant 2026.8.3
+    name: Python 3.14 / Home Assistant ${{ matrix.ha }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ha: ["2026.9.0", "2026.9.1"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -25,7 +28,7 @@ jobs:
       - name: Install validation dependencies
         run: >-
           python -m pip install
-          homeassistant==2026.8.3
+          homeassistant==${{ matrix.ha }}
           pytest
           pytest-asyncio
           ruff

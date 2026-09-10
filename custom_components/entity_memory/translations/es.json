@@ -1,12 +1,14 @@
 {
   "title": "Entity Memory",
   "config": {
-    "step": {"user": {"title": "Configurar Entity Memory", "description": "Selecciona entidades individuales o utiliza patrones comodín. Los patrones muy amplios pueden aumentar el uso de memoria y la carga de Recorder.", "data": {"entities": "Entidades", "entity_patterns": "Patrones de entidades (uno por línea)", "window_hours": "Ventana de memoria (horas)", "ignore_unavailable": "Ignorar estados no disponibles y desconocidos", "attribute_changes": "Registrar cambios significativos de atributos"}}},
+    "step": {"user": {"title": "Configurar Entity Memory", "description": "Selecciona entidades individuales o utiliza patrones comodín. Los patrones muy amplios pueden aumentar el uso de memoria y la carga de Recorder.", "data": {"entities": "Entidades", "exclude_patterns": "Patrones excluidos",
+          "entity_patterns": "Patrones de entidades (uno por línea)", "window_hours": "Ventana de memoria (horas)", "ignore_unavailable": "Ignorar estados no disponibles y desconocidos", "attribute_changes": "Registrar cambios significativos de atributos"}}},
     "error": {"invalid_entity_patterns": "Utiliza patrones completos con un dominio compatible, por ejemplo light.*.", "no_matching_entities": "Selecciona al menos una entidad o introduce un patrón."},
     "abort": {"single_instance_allowed": "Entity Memory ya está configurado."}
   },
   "options": {
-    "step": {"init": {"title": "Opciones de Entity Memory", "data": {"entities": "Entidades", "entity_patterns": "Patrones de entidades (uno por línea)", "window_hours": "Ventana de memoria (horas)", "ignore_unavailable": "Ignorar estados no disponibles y desconocidos", "attribute_changes": "Registrar cambios significativos de atributos"}}},
+    "step": {"init": {"title": "Opciones de Entity Memory", "data": {"entities": "Entidades", "exclude_patterns": "Patrones excluidos",
+          "entity_patterns": "Patrones de entidades (uno por línea)", "window_hours": "Ventana de memoria (horas)", "ignore_unavailable": "Ignorar estados no disponibles y desconocidos", "attribute_changes": "Registrar cambios significativos de atributos"}}},
     "error": {"invalid_entity_patterns": "Utiliza patrones completos con un dominio compatible, por ejemplo light.*.", "no_matching_entities": "Selecciona al menos una entidad o introduce un patrón."}
   },
   "services": {

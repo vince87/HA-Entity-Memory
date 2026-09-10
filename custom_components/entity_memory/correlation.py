@@ -70,12 +70,16 @@ class IntentTracker:
 
     def __init__(self, timeout: timedelta = CORRELATION_TIMEOUT) -> None:
         self.timeout = timeout
-        self._pending: dict[str, deque[ServiceIntent]] = defaultdict(deque)
+        self._pending: dict[str, deque[ServiceIntent]] = defaultdict(
+            lambda: deque(maxlen=32)
+        )
         self._automation_contexts: dict[str, datetime] = {}
 
     def observe_automation(self, event: Event) -> None:
         """Remember an automation run by its exact Home Assistant context."""
         self._automation_contexts[event.context.id] = event.time_fired
+        if len(self._automation_contexts) > 4096:
+            self._automation_contexts.pop(next(iter(self._automation_contexts)))
         self.prune(event.time_fired)
 
     def observe_call(
@@ -131,8 +135,12 @@ class IntentTracker:
 
     @staticmethod
     def _matches(intent: ServiceIntent, event: MemoryEvent) -> bool:
+        if event.timestamp < intent.timestamp:
+            return False
+        if event.user_id or event.parent_id:
+            return intent.context_id in {event.context_id, event.parent_id}
         if not intent.expected:
-            return True
+            return False
         for name, expected in intent.expected.items():
             actual = (
                 event.new_state if name == "state" else event.new_attributes.get(name)

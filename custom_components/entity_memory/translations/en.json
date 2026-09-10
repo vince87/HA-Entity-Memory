@@ -7,6 +7,7 @@
         "description": "Select individual entities or use wildcard patterns. Broad patterns can increase memory usage and Recorder load.",
         "data": {
           "entities": "Entities",
+          "exclude_patterns": "Exclude patterns",
           "entity_patterns": "Entity patterns (one per line)",
           "window_hours": "Memory window (hours)",
           "ignore_unavailable": "Ignore unavailable and unknown states",
@@ -26,6 +27,7 @@
         "title": "Entity Memory options",
         "data": {
           "entities": "Entities",
+          "exclude_patterns": "Exclude patterns",
           "entity_patterns": "Entity patterns (one per line)",
           "window_hours": "Memory window (hours)",
           "ignore_unavailable": "Ignore unavailable and unknown states",

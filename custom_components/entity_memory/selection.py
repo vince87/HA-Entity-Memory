@@ -62,3 +62,46 @@ def selected(
     return (
         entity_id in explicit or any(fnmatchcase(entity_id, p) for p in patterns)
     ) and not any(fnmatchcase(entity_id, p) for p in excludes)
+
+
+# Technical telemetry only: temperature, power, battery and safety sensors stay in.
+DEFAULT_EXCLUDE_PATTERNS = (
+    "update.*",
+    "sensor.*_rssi",
+    "sensor.*_linkquality",
+    "sensor.*_link_quality",
+    "sensor.*_signal_strength",
+    "sensor.*_wifi_signal",
+    "sensor.*_wi_fi_signal",
+    "sensor.*_last_seen",
+    "sensor.*_last_boot",
+    "sensor.*_uptime",
+    "sensor.*_ip_address",
+    "sensor.*_mac_address",
+)
+
+
+def all_entities_config(config: dict, available: Iterable[str]) -> dict:
+    """Move to exclusion-only selection without dropping formerly watched IDs.
+
+    Existing explicit exclusions always win. Recommended patterns are only
+    seeded once and omitted if they would exclude a previously watched entity.
+    Persist the result so clearing a recommendation really disables it.
+    """
+    result = dict(config)
+    if config.get("selection_mode") != "all":
+        previous = resolve_entities(
+            config.get("entities", []),
+            parse_patterns(config.get("entity_patterns")),
+            available,
+        )
+        excludes = parse_patterns(config.get("exclude_patterns"))
+        excludes.extend(
+            pattern
+            for pattern in DEFAULT_EXCLUDE_PATTERNS
+            if pattern not in excludes
+            and not any(fnmatchcase(entity_id, pattern) for entity_id in previous)
+        )
+        result["exclude_patterns"] = "\n".join(excludes)
+    result.update(selection_mode="all", entities=[], entity_patterns="*")
+    return result

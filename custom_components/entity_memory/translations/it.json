@@ -4,11 +4,9 @@
     "step": {
       "user": {
         "title": "Configura Entity Memory",
-        "description": "Seleziona entità singole oppure usa pattern wildcard. Pattern molto ampi possono aumentare l'uso di memoria e il carico su Recorder.",
+        "description": "Tutte le entità vengono monitorate automaticamente. Qui puoi escludere quelle che non ti servono usando pattern o ID singoli, uno per riga. La lista iniziale filtra aggiornamenti e telemetria tecnica: puoi modificarla o svuotarla. Temperatura, consumi, batterie e sensori di apertura restano inclusi.",
         "data": {
-          "entities": "Entità",
-          "exclude_patterns": "Pattern da escludere",
-          "entity_patterns": "Pattern entità (uno per riga)",
+          "exclude_patterns": "Pattern da escludere (uno per riga)",
           "window_hours": "Finestra di memoria (ore)",
           "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
           "attribute_changes": "Registra i cambiamenti significativi degli attributi"
@@ -16,28 +14,27 @@
       }
     },
     "error": {
-      "invalid_entity_patterns": "Usa pattern completi di un dominio supportato, ad esempio light.*.",
-      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern."
+      "invalid_entity_patterns": "Usa un ID completo o un pattern, ad esempio sensor.*_rssi oppure update.*."
     },
-    "abort": {"single_instance_allowed": "Entity Memory è già configurata."}
+    "abort": {
+      "single_instance_allowed": "Entity Memory è già configurata."
+    }
   },
   "options": {
     "step": {
       "init": {
         "title": "Opzioni di Entity Memory",
         "data": {
-          "entities": "Entità",
-          "exclude_patterns": "Pattern da escludere",
-          "entity_patterns": "Pattern entità (uno per riga)",
+          "exclude_patterns": "Pattern da escludere (uno per riga)",
           "window_hours": "Finestra di memoria (ore)",
           "ignore_unavailable": "Ignora gli stati non disponibile e sconosciuto",
           "attribute_changes": "Registra i cambiamenti significativi degli attributi"
-        }
+        },
+        "description": "Tutte le entità vengono monitorate automaticamente. Qui puoi escludere quelle che non ti servono usando pattern o ID singoli, uno per riga. La lista iniziale filtra aggiornamenti e telemetria tecnica: puoi modificarla o svuotarla. Temperatura, consumi, batterie e sensori di apertura restano inclusi."
       }
     },
     "error": {
-      "invalid_entity_patterns": "Usa pattern completi di un dominio supportato, ad esempio light.*.",
-      "no_matching_entities": "Seleziona almeno un'entità o inserisci un pattern."
+      "invalid_entity_patterns": "Usa un ID completo o un pattern, ad esempio sensor.*_rssi oppure update.*."
     }
   },
   "services": {
@@ -45,79 +42,170 @@
       "name": "Ottieni eventi",
       "description": "Restituisce gli eventi recenti corrispondenti, dal più recente.",
       "fields": {
-        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
-        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
-        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
-        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
-        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+        "entity_id": {
+          "name": "Entità",
+          "description": "Entità da interrogare."
+        },
+        "since": {
+          "name": "Periodo da esaminare",
+          "description": "Quanto indietro cercare."
+        },
+        "to_state": {
+          "name": "Nuovo stato",
+          "description": "Restituisce solo le transizioni verso questo stato."
+        },
+        "origins": {
+          "name": "Origini",
+          "description": "Restituisce solo gli eventi con queste origini."
+        },
+        "limit": {
+          "name": "Numero massimo di risultati",
+          "description": "Numero massimo di eventi da restituire."
+        }
       }
     },
     "last_event": {
       "name": "Ottieni ultimo evento",
       "description": "Restituisce l'evento corrispondente più recente.",
       "fields": {
-        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
-        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
-        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
-        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
-        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+        "entity_id": {
+          "name": "Entità",
+          "description": "Entità da interrogare."
+        },
+        "since": {
+          "name": "Periodo da esaminare",
+          "description": "Quanto indietro cercare."
+        },
+        "to_state": {
+          "name": "Nuovo stato",
+          "description": "Restituisce solo le transizioni verso questo stato."
+        },
+        "origins": {
+          "name": "Origini",
+          "description": "Restituisce solo gli eventi con queste origini."
+        },
+        "limit": {
+          "name": "Numero massimo di risultati",
+          "description": "Numero massimo di eventi da restituire."
+        }
       }
     },
     "was_changed": {
       "name": "Verifica modifica recente",
       "description": "Verifica se esiste almeno un evento corrispondente.",
       "fields": {
-        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
-        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
-        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
-        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
-        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+        "entity_id": {
+          "name": "Entità",
+          "description": "Entità da interrogare."
+        },
+        "since": {
+          "name": "Periodo da esaminare",
+          "description": "Quanto indietro cercare."
+        },
+        "to_state": {
+          "name": "Nuovo stato",
+          "description": "Restituisce solo le transizioni verso questo stato."
+        },
+        "origins": {
+          "name": "Origini",
+          "description": "Restituisce solo gli eventi con queste origini."
+        },
+        "limit": {
+          "name": "Numero massimo di risultati",
+          "description": "Numero massimo di eventi da restituire."
+        }
       }
     },
     "count_events": {
       "name": "Conta eventi",
       "description": "Conta gli eventi corrispondenti nel periodo richiesto.",
       "fields": {
-        "entity_id": {"name": "Entità", "description": "Entità da interrogare."},
-        "since": {"name": "Periodo da esaminare", "description": "Quanto indietro cercare."},
-        "to_state": {"name": "Nuovo stato", "description": "Restituisce solo le transizioni verso questo stato."},
-        "origins": {"name": "Origini", "description": "Restituisce solo gli eventi con queste origini."},
-        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di eventi da restituire."}
+        "entity_id": {
+          "name": "Entità",
+          "description": "Entità da interrogare."
+        },
+        "since": {
+          "name": "Periodo da esaminare",
+          "description": "Quanto indietro cercare."
+        },
+        "to_state": {
+          "name": "Nuovo stato",
+          "description": "Restituisce solo le transizioni verso questo stato."
+        },
+        "origins": {
+          "name": "Origini",
+          "description": "Restituisce solo gli eventi con queste origini."
+        },
+        "limit": {
+          "name": "Numero massimo di risultati",
+          "description": "Numero massimo di eventi da restituire."
+        }
       }
     },
     "get_register": {
       "name": "Ottieni registro",
       "description": "Restituisce un valore persistente per automazioni.",
-      "fields": {"key": {"name": "Chiave", "description": "Chiave del registro con namespace."}}
+      "fields": {
+        "key": {
+          "name": "Chiave",
+          "description": "Chiave del registro con namespace."
+        }
+      }
     },
     "set_register": {
       "name": "Imposta registro",
       "description": "Crea o sostituisce un valore persistente per automazioni.",
       "fields": {
-        "key": {"name": "Chiave", "description": "Chiave del registro con namespace."},
-        "value": {"name": "Valore", "description": "Valore compatibile con JSON da memorizzare."},
-        "expected_revision": {"name": "Revisione attesa", "description": "Scrive solo se la revisione memorizzata corrisponde; usa 0 per una chiave assente."}
+        "key": {
+          "name": "Chiave",
+          "description": "Chiave del registro con namespace."
+        },
+        "value": {
+          "name": "Valore",
+          "description": "Valore compatibile con JSON da memorizzare."
+        },
+        "expected_revision": {
+          "name": "Revisione attesa",
+          "description": "Scrive solo se la revisione memorizzata corrisponde; usa 0 per una chiave assente."
+        }
       }
     },
     "compare_register": {
       "name": "Confronta registro",
       "description": "Confronta un valore persistente senza modificarlo.",
       "fields": {
-        "key": {"name": "Chiave", "description": "Chiave del registro con namespace."},
-        "value": {"name": "Valore", "description": "Valore compatibile con JSON da confrontare."}
+        "key": {
+          "name": "Chiave",
+          "description": "Chiave del registro con namespace."
+        },
+        "value": {
+          "name": "Valore",
+          "description": "Valore compatibile con JSON da confrontare."
+        }
       }
     },
     "delete_register": {
       "name": "Elimina registro",
       "description": "Elimina un valore persistente per automazioni.",
-      "fields": {"key": {"name": "Chiave", "description": "Chiave del registro con namespace."}}
+      "fields": {
+        "key": {
+          "name": "Chiave",
+          "description": "Chiave del registro con namespace."
+        }
+      }
     },
     "list_registers": {
       "name": "Elenca registri",
       "description": "Restituisce i valori persistenti, filtrabili per prefisso.",
       "fields": {
-        "prefix": {"name": "Prefisso chiave", "description": "Prefisso namespace facoltativo."},
-        "limit": {"name": "Numero massimo di risultati", "description": "Numero massimo di registri da restituire."}
+        "prefix": {
+          "name": "Prefisso chiave",
+          "description": "Prefisso namespace facoltativo."
+        },
+        "limit": {
+          "name": "Numero massimo di risultati",
+          "description": "Numero massimo di registri da restituire."
+        }
       }
     }
   }

@@ -28,8 +28,6 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_ATTRIBUTE_CHANGES,
-    CONF_ENTITIES,
-    CONF_ENTITY_PATTERNS,
     CONF_IGNORE_UNAVAILABLE,
     CONF_WINDOW_HOURS,
     DEFAULT_ATTRIBUTE_CHANGES,
@@ -46,7 +44,7 @@ from .correlation import IntentTracker
 from .models import EventConfidence, EventOrigin, MemoryEvent
 from .recorder import async_restore_events
 from .registers import RegisterStore
-from .selection import known_entity_ids, parse_patterns, resolve_entities, selected
+from .selection import all_entities_config, known_entity_ids, parse_patterns, selected
 from .store import EventStore
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -183,16 +181,15 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: EntityMemoryConfigEntry
 ) -> bool:
     """Set up Entity Memory from a config entry."""
-    config = {**entry.data, **entry.options}
-    patterns = parse_patterns(config.get(CONF_ENTITY_PATTERNS))
-    explicit = set(config.get(CONF_ENTITIES, []))
+    available = _available_entity_ids(hass)
+    stored_config = {**entry.data, **entry.options}
+    config = all_entities_config(stored_config, available)
+    if stored_config != config:
+        hass.config_entries.async_update_entry(entry, options=config)
+    patterns = ["*"]
+    explicit: set[str] = set()
     excludes = parse_patterns(config.get("exclude_patterns"))
-    entity_ids = resolve_entities(
-        config.get(CONF_ENTITIES, []),
-        patterns,
-        _available_entity_ids(hass),
-    )
-    entity_ids = {e for e in entity_ids if selected(e, explicit, patterns, excludes)}
+    entity_ids = {e for e in available if selected(e, explicit, patterns, excludes)}
     window = timedelta(hours=float(config.get(CONF_WINDOW_HOURS, DEFAULT_WINDOW_HOURS)))
     ignore_unavailable = config.get(CONF_IGNORE_UNAVAILABLE, DEFAULT_IGNORE_UNAVAILABLE)
     include_attributes = config.get(CONF_ATTRIBUTE_CHANGES, DEFAULT_ATTRIBUTE_CHANGES)

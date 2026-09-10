@@ -218,6 +218,7 @@ async def test_setup_dynamic_capture_exclusions_and_unload(monkeypatch):
     hass = SimpleNamespace(
         states=SimpleNamespace(async_entity_ids=lambda: []),
         bus=SimpleNamespace(async_listen=listen),
+        config_entries=SimpleNamespace(async_update_entry=lambda *args, **kwargs: None),
     )
     assert await integration.async_setup_entry(hass, entry)
     restore.assert_not_awaited()

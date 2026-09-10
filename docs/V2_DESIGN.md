@@ -37,7 +37,7 @@ of individual events; the vocabulary and filtering contract are unchanged.
 All five register actions, keys, JSON values, revision/conflict rules, limits,
 storage key `entity_memory.registers` and storage version 1 remain unchanged.
 No migration touches register files or the user's automation configuration.
-Existing config entries remain version 1 with their selected entities and window.
+Config entries remain version 1. Beta.2 expands monitoring to all entities and retains the window and existing exclusions. Recommended exclusions are seeded once; patterns matching previously monitored entities are omitted to preserve their coverage.
 
 ## Comparison with HA 2026.9
 
@@ -82,9 +82,13 @@ claim identical attribution to Activity for every integration.
 
 ## RAM, selection and Recorder
 
-Use `*` or `*.*` to select every domain, with optional exclusion patterns such as
-`sensor.*`, `update.*` or an individual entity ID. Existing fnmatch syntax remains
-valid. A single state listener applies selection dynamically, so new entities do
+Since beta.2 all domains are monitored by default. The UI has one selection field,
+**Exclude patterns**, accepting wildcards or individual entity IDs. Its editable
+initial list filters update entities and named technical telemetry (RSSI, link
+quality, signal strength, last seen, last boot, uptime, IP and MAC addresses).
+Temperature, power, battery and opening sensors are not excluded by default.
+Existing fnmatch syntax remains valid. Clearing the list is persisted and does
+not reseed it on restart. A single state listener applies selection dynamically, so new entities do
 not reload the component or reset live attribution. Attribute significance for
 the original domains is unchanged; added domains capture state transitions.
 

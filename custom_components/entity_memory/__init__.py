@@ -396,4 +396,3 @@ async def async_unload_entry(
 ) -> bool:
     """Unload Entity Memory."""
     return True
-

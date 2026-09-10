@@ -135,4 +135,3 @@ Existing automation actions and persistent registers remain compatible. Existing
 Native context ancestry takes precedence over legacy service-value correlation. History is restored from Recorder when an entity is first queried, rather than loading all selected entities at startup. RAM stores compressed event payloads for the full configured window, with no second database history. Memory still grows with event rate and window length; there is no fixed per-entity event cap that could silently change query results.
 
 See [v2 design and compatibility](docs/V2_DESIGN.md) for exact behavior, limitations and validation.
-

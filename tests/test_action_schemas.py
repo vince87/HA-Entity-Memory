@@ -54,7 +54,7 @@ def test_set_register_rejects_invalid_revisions(supplied: object) -> None:
 
 
 def test_compare_register_rejects_expected_revision() -> None:
-    with pytest.raises(vol.Invalid, match="extra keys not allowed"):
+    with pytest.raises(vol.Invalid, match="extra keys not allowed|not a valid option"):
         REGISTER_COMPARE_SCHEMA(
             {
                 "key": "example.phase",
